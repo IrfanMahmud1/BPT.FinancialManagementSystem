@@ -3,8 +3,8 @@ using System.Threading.Tasks;
 
 namespace BPT.FMS.Domain.Entities
 {
-    public interface IEntity<T>
+    public interface IEntity<TKey> where TKey : IEquatable<TKey>
     {
-        T Id { get; set; }
+        TKey Id { get; set; }
     }
 }
