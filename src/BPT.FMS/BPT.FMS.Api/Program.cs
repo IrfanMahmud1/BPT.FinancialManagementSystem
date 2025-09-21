@@ -1,4 +1,4 @@
-using BPT.FMS.UI.Data;
+using BPT.FMS.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
