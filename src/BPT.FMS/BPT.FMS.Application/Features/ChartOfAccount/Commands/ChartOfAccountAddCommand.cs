@@ -1,14 +1,14 @@
-﻿using System;
+﻿using BPT.FMS.Domain.Features.ChartOfAccount.Commands;
+using MediatR;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BPT.FMS.Domain.Entities
+namespace BPT.FMS.Application.Features.ChartOfAccount.Commands
 {
-    public class ChartOfAccount : IEntity<Guid>
+    public class ChartOfAccountAddCommand : IRequest,IChartOfAccountAddCommand
     {
         public Guid Id { get; set; }
         public string AccountName { get; set; }
@@ -16,10 +16,5 @@ namespace BPT.FMS.Domain.Entities
         public string AccountType { get; set; } // Asset, Liability, Income, etc.
         public bool IsActive { get; set; }
         public DateTime CreatedAt { get; set; }
-
-        [NotMapped]
-        public List<ChartOfAccount> Children { get; set; } = new();
-        public ChartOfAccount? Parent { get; set; }
     }
-
 }

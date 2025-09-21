@@ -6,4 +6,18 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Features\ChartOfAccount\Commands\ChartOfAccountAddCommand.cs~RF290c8b.TMP" />
+    <None Remove="Features\ChartOfAccount\Commands\ChartOfAccountUpdateCommand.cs~RF500569.TMP" />
+    <None Remove="Features\ChartOfAccount\Queries\GetPaginatedChartOfAccountsQuery.cs~RFfc1acaa.TMP" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="13.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BPT.FMS.Domain\BPT.FMS.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

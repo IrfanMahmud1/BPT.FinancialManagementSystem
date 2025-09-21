@@ -1,6 +1,8 @@
 using BPT.FMS.Domain;
+using BPT.FMS.Domain.Repositories;
 using BPT.FMS.Infrastructure;
 using BPT.FMS.Infrastructure.Data;
+using BPT.FMS.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +12,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
+builder.Services.AddScoped<IChartOfAccountRepository,ChartOfAccountRepository>();
 builder.Services.AddScoped<IApplicationUnitOfWork, ApplicationUnitOfWork>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddControllers();

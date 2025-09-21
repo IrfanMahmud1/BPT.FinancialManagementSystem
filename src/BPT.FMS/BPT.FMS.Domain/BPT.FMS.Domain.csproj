@@ -8,7 +8,12 @@
 
   <ItemGroup>
     <None Remove="Entities\IEntity.cs~RFed3b0e6.TMP" />
+    <None Remove="Features\ChartOfAccount\Queries\IGetChartOfAccountByIdQuery.cs~RF1e4e2d.TMP" />
     <None Remove="Repositories\IChartOfAccountRepository.cs~RFf0bf234.TMP" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Features\ChartOfAccount\Queries\IGetPaginatedChartOfAccountsQuery.cs" />
   </ItemGroup>
 
 </Project>
