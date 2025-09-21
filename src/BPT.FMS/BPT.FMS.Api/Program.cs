@@ -1,7 +1,6 @@
 using BPT.FMS.Domain;
 using BPT.FMS.Infrastructure;
 using BPT.FMS.Infrastructure.Data;
-using BPT.FMS.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

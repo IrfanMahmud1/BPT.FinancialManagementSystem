@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BPT.FMS.Infrastructure.Repositories
+namespace BPT.FMS.Infrastructure
 {
     public class UnitOfWork : IUnitOfWork
     {

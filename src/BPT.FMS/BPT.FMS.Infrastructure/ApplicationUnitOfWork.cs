@@ -1,6 +1,5 @@
 ﻿using BPT.FMS.Domain;
 using BPT.FMS.Infrastructure.Data;
-using BPT.FMS.Infrastructure.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
