@@ -26,28 +26,48 @@ namespace BPT.FMS.Infrastructure.Repositories
                     .AnyAsync(x => x.AccountName == name && (!id.HasValue || x.Id != id.Value));
         }
 
-        public async Task<(List<ChartOfAccount> data, int total, int totalDisplay)> GetPagedAccountsAsync(int pageIndex, int pageSize, string? order, DataTablesSearch search)
+        public async Task<(List<ChartOfAccount> data, int total, int totalDisplay)> GetPagedAccountsAsync(
+    int pageIndex = 1, int pageSize = 10, string order = "AccountName asc", string? search = "")
         {
             int total = await _context.ChartOfAccounts.CountAsync();
+
             try
             {
-                var result = await _context.ChartOfAccounts
-                    .AsNoTracking()
-                    .AsSplitQuery()
-                    .Include(c => c.Parent)
-                    .Where(c => c.AccountName.Contains(search.Value) || c.AccountName.Contains(search.Value) || c.CreatedAt.Equals(search.Value))
-                    .OrderBy(order ?? "AccountName asc")
+                IQueryable<ChartOfAccount> query = _context.ChartOfAccounts
+                                                    .AsNoTracking()
+                                                    .AsSplitQuery()
+                                                    .Include(c => c.Parent);
+
+
+                if (DateTime.TryParse(search, out var searchDate))
+                {
+                    query = query.Where(c => c.CreatedAt.Date == searchDate.Date);
+                }
+                else if(!string.IsNullOrWhiteSpace(search))
+                {
+                    query = query.Where(c =>
+                        c.AccountName.Contains(search) ||
+                        c.AccountType.Contains(search) 
+                    );
+                }
+
+
+                int totalDisplay = await query.CountAsync();
+
+                query = query.OrderBy(order ?? "AccountName asc"); // requires System.Linq.Dynamic.Core
+                var result = await query
                     .Skip((pageIndex - 1) * pageSize)
                     .Take(pageSize)
                     .ToListAsync();
-                int totalDisplay = total;
+
                 return (result, total, totalDisplay);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error occurred while retrieving chart of accounts");
-                throw; // Re-throw the exception after logging it
+                Console.WriteLine("An error occurred while retrieving chart of accounts ");
+                throw;
             }
         }
+
     }
 }

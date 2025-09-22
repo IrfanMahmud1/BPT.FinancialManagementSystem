@@ -71,17 +71,30 @@ namespace BPT.FMS.UI.Controllers
             return Json(new { success = true, message = "Chart of account created successfully" });
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Update(Guid id)
+        {
+            var response = await _httpClient.GetAsync($"api/ChartOfAccount/{id}");
+
+            if (!response.IsSuccessStatusCode)
+                return Json(new { success = false, message = "Failed to update chart of account" });
+
+            var stream = await response.Content.ReadAsStreamAsync();
+            var result = await JsonSerializer.DeserializeAsync<object>(stream, _jsonOptions);
+            return Json(result);
+        }
+
         [HttpPost]
-        public async Task<IActionResult> Edit(ChartOfAccountDto dto)
+        public async Task<IActionResult> Update(ChartOfAccountDto dto)
         {
             var content = new StringContent(JsonSerializer.Serialize(dto), Encoding.UTF8, "application/json");
             var response = await _httpClient.PutAsync($"api/ChartOfAccount/{dto.Id}", content);
 
             if (!response.IsSuccessStatusCode)  
-                return Json(new { success = false, message = "Failed to edit chart of account" }); 
+                return Json(new { success = false, message = "Failed to update chart of account" }); 
 
-            TempData["SuccessMessage"] = "Chart of account edited successfully";
-            return Json(new { success = true, message = "Chart of account edited successfully" }); 
+            TempData["SuccessMessage"] = "Chart of account updated successfully";
+            return Json(new { success = true, message = "Chart of account updated successfully" }); 
         }
 
         [HttpPost]
@@ -99,12 +112,15 @@ namespace BPT.FMS.UI.Controllers
         }
 
         [HttpPost]
-        public async Task<JsonResult> GetChartOfAccountsJsonDataAsync([FromQuery] GetPaginatedChartOfAccountsQuery query)
+        public async Task<JsonResult> GetChartOfAccountsJsonDataAsync([FromBody] GetChartOfAccountsDto query)
         {
             try
             {
-                var queryString = query.ToQueryString();
-                var response = await _httpClient.GetAsync($"api/chartofaccounts/paginated?{queryString}");
+            //https://localhost:7060/api/ChartOfAccount/paginated?pageIndex=1&pageSize=10&sortColumn=AccountName%20asc&search=general
+                var url = $"api/ChartOfAccount/paginated?pageIndex={query.PageIndex}&pageSize={query.PageSize}" +
+                 $"&sortColumn={Uri.EscapeDataString(query.FormatSortExpression("AccountName", "AccountType", "ParentAccount", "CreateAt"))}&search={Uri.EscapeDataString(query.Search.Value)}";
+
+                var response = await _httpClient.GetAsync(url);
 
                 if (!response.IsSuccessStatusCode)
                 {

@@ -17,7 +17,7 @@ namespace BPT.FMS.Application.Features.ChartOfAccount.Queries
         }
         public async Task<(IList<BPT.FMS.Domain.Entities.ChartOfAccount>, int, int)> Handle(GetPaginatedChartOfAccountsQuery request, CancellationToken cancellationToken)
         {
-            return await _applicationUnitOfWork.ChartOfAccountRepository.GetPagedAccountsAsync(request.PageIndex, request.PageSize, request.FormatSortExpression("Name"), request.Search);
+            return await _applicationUnitOfWork.ChartOfAccountRepository.GetPagedAccountsAsync(request.pageIndex, request.pageSize, request.sortColumn, request.search);
         }
     }
 }
