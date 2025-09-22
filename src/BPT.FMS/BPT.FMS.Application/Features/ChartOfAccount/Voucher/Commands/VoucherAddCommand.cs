@@ -1,20 +1,20 @@
-﻿using System;
+﻿using BPT.FMS.Domain.Entities;
+using BPT.FMS.Domain.Features.ChartOfAccount.Voucher.Commands;
+using MediatR;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BPT.FMS.Domain.Entities
+namespace BPT.FMS.Application.Features.ChartOfAccount.Voucher.Commands
 {
-    public class Voucher : IEntity<Guid>
+    public class VoucherAddCommand : IRequest, IVoucherAddCommand
     {
         public Guid Id { get; set; }
         public DateTime Date { get; set; }
         public string ReferenceNo { get; set; }
         public string Type { get; set; }
-        [NotMapped]
         public List<VoucherEntry> Entries { get; set; } = new();
     }
-
 }

@@ -12,10 +12,13 @@ namespace BPT.FMS.Infrastructure
     public class ApplicationUnitOfWork : UnitOfWork, IApplicationUnitOfWork
     {
         public IChartOfAccountRepository ChartOfAccountRepository { get; private set; }
+        public IVoucherRepository VoucherRepository { get; private set; }
         public ApplicationUnitOfWork(ApplicationDbContext applicationDbContext,
-            IChartOfAccountRepository chartOfAccountRepository) : base(applicationDbContext)
+            IChartOfAccountRepository chartOfAccountRepository,
+            IVoucherRepository voucherRepository) : base(applicationDbContext)
         {
             ChartOfAccountRepository = chartOfAccountRepository;
+            VoucherRepository = voucherRepository;
         }
     }
 }

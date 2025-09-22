@@ -10,6 +10,7 @@
     <None Remove="Features\ChartOfAccount\Commands\ChartOfAccountAddCommand.cs~RF290c8b.TMP" />
     <None Remove="Features\ChartOfAccount\Commands\ChartOfAccountUpdateCommand.cs~RF500569.TMP" />
     <None Remove="Features\ChartOfAccount\Queries\GetPaginatedChartOfAccountsQuery.cs~RFfc1acaa.TMP" />
+    <None Remove="Features\ChartOfAccount\Voucher\Commands\VoucherAddCommandHandler.cs~RF2c4f846.TMP" />
   </ItemGroup>
 
   <ItemGroup>

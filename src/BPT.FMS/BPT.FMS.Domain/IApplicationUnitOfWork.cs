@@ -10,5 +10,6 @@ namespace BPT.FMS.Domain
     public interface IApplicationUnitOfWork : IUnitOfWork
     {
         public IChartOfAccountRepository ChartOfAccountRepository { get; }
+        public IVoucherRepository VoucherRepository { get; }
     }
 }
