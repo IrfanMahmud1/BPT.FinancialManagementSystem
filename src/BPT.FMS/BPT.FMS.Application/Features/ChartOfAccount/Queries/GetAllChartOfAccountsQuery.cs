@@ -9,5 +9,6 @@ namespace BPT.FMS.Application.Features.ChartOfAccount.Queries
 {
     public class GetAllChartOfAccountsQuery : IRequest<IEnumerable<BPT.FMS.Domain.Entities.ChartOfAccount>>
     {
+        public Guid? Id { get; set; }
     }
 }

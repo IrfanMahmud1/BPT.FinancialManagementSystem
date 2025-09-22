@@ -1,14 +1,10 @@
 ﻿using BPT.FMS.Application.Exceptions;
 using BPT.FMS.Application.Features.ChartOfAccount.Commands;
 using BPT.FMS.Application.Features.ChartOfAccount.Queries;
-using BPT.FMS.Domain;
+using BPT.FMS.Domain.Dtos;
 using BPT.FMS.Domain.Entities;
-using BPT.FMS.Infrastructure.Data;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using NuGet.Protocol;
 using System.Web;
 
 namespace BPT.FMS.Api.Controllers
@@ -17,134 +13,172 @@ namespace BPT.FMS.Api.Controllers
     [ApiController]
     public class ChartOfAccountController : ControllerBase
     {
-        private readonly IApplicationUnitOfWork _unitOfWork;
         private readonly IMediator _mediator;
-        public ChartOfAccountController(IMediator mediator,
-            IApplicationUnitOfWork unitOfWork)
+
+        public ChartOfAccountController(IMediator mediator)
         {
             _mediator = mediator;
-            _unitOfWork = unitOfWork;
         }
-        // GET: api/ChartOfAccounts
-        [HttpPost]
-        public async Task<ActionResult> GetChartOfAccounts(GetPaginatedChartOfAccountsQuery query)
+        [HttpGet("all/{childId:guid}")]
+        public async Task<ActionResult<IEnumerable<ChartOfAccountDto>>> GetAllChartOfAccounts(Guid childId)
         {
             try
             {
-                var (data,total,totalDisplay) = await _mediator.Send(query);
-                var accounts = (from acc in data
-                                select new string[]
-                                {
-                                    HttpUtility.HtmlEncode(acc.AccountName),
-                                    HttpUtility.HtmlEncode(acc.AccountType),
-                                    HttpUtility.HtmlEncode(acc.Parent != null ? acc.Parent.AccountName : ""),
-                                    acc.CreatedAt.ToString("yyyy-MM-dd"),
-                                    acc.Id.ToString()
-                                }).ToArray();
-                return Ok(accounts);
+                var accounts = await _mediator.Send(new GetAllChartOfAccountsQuery{ Id = childId });
+                var dtos = accounts.Select(acc => new ChartOfAccountDto
+                {
+                    Id = acc.Id,
+                    AccountName = acc.AccountName,
+                    AccountType = acc.AccountType,
+                    ParentId = acc.ParentId,
+                    IsActive = acc.IsActive,
+                    CreatedAt = acc.CreatedAt
+                });
+                return Ok(dtos);
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine($"An error occurred while retrieving chart of accounts");
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, "An error occurred while retrieving chart of accounts.");
             }
         }
 
-        
-        [HttpGet("{id}")]
-        public async Task<ActionResult<ChartOfAccount>> GetChartOfAccount(Guid id)
+        // GET: api/ChartOfAccount/paginated
+        [HttpGet("paginated")]
+        public async Task<ActionResult> GetChartOfAccounts([FromQuery] GetPaginatedChartOfAccountsQuery query)
+        {
+            try
+            {
+                var (data, total, totalDisplay) = await _mediator.Send(query);
+
+                var accounts = new
+                {
+                    recordsTotal = total,
+                    recordsFiltered = totalDisplay,
+                    data = data.Select(acc => new string[]
+                    {
+                        HttpUtility.HtmlEncode(acc.AccountName),
+                        HttpUtility.HtmlEncode(acc.AccountType),
+                        HttpUtility.HtmlEncode(acc.Parent != null ? acc.Parent.AccountName : ""),
+                        acc.CreatedAt.ToString("yyyy-MM-dd"),
+                        acc.Id.ToString()
+                    }).ToArray()
+                };
+
+                return Ok(accounts);
+            }
+            catch
+            {
+                return StatusCode(500, "An error occurred while retrieving chart of accounts.");
+            }
+        }
+
+        // GET: api/ChartOfAccount/{id}
+        [HttpGet("{id:guid}")]
+        public async Task<ActionResult<ChartOfAccountDto>> GetChartOfAccount(Guid id)
         {
             try
             {
                 var account = await _mediator.Send(new GetChartOfAccountByIdQuery { Id = id });
                 if (account == null) return NotFound();
-                return account;
+
+                var dto = new ChartOfAccountDto
+                {
+                    Id = account.Id,
+                    AccountName = account.AccountName,
+                    AccountType = account.AccountType,
+                    ParentId = account.ParentId,
+                    IsActive = account.IsActive,
+                    CreatedAt = account.CreatedAt
+                };
+
+                return Ok(dto);
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine($"An error occurred while retrieving chart of account");
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, "An error occurred while retrieving chart of account.");
             }
         }
 
-        // POST: api/ChartOfAccounts
+        // POST: api/ChartOfAccount
         [HttpPost]
-        public async Task<ActionResult> PostChartOfAccount(ChartOfAccount account)
+        public async Task<ActionResult> PostChartOfAccount([FromBody] ChartOfAccountDto dto)
         {
-            if(!ModelState.IsValid) return BadRequest(ModelState);
+
             try
             {
-                 await _mediator.Send(
-                    new ChartOfAccountAddCommand
-                    {
-                        Id = Guid.NewGuid(),
-                        AccountName = account.AccountName,
-                        ParentId = account.ParentId,
-                        AccountType = account.AccountType,
-                        IsActive = account.IsActive,
-                        CreatedAt = DateTime.UtcNow
-                    });
-            }
-            catch(DuplicateNameException dex)
-            {
-                return BadRequest(dex.Message);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An error occurred while creating a new chart of account");
-                return StatusCode(500, "Internal server error");
-            }
-            return NoContent();
-        }
+                var id = Guid.NewGuid();
 
-        // PUT: api/ChartOfAccounts/5
-        [HttpPut("{id}")]
-        public async Task<ActionResult> PutChartOfAccount(ChartOfAccount account)
-        {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-            if (account.Id == Guid.Empty) return BadRequest("Invalid account ID");
-            try
-            {
-                await _mediator.Send(
-                    new ChartOfAccountUpdateCommand
-                    {
-                        Id = account.Id,
-                        AccountName = account.AccountName,
-                        ParentId = account.ParentId,
-                        AccountType = account.AccountType,
-                        IsActive = account.IsActive
+                await _mediator.Send(new ChartOfAccountAddCommand
+                {
+                    Id = id,
+                    AccountName = dto.AccountName,
+                    ParentId = dto.ParentId,
+                    AccountType = dto.AccountType,
+                    IsActive = dto.IsActive,
+                    CreatedAt = dto.CreatedAt
+                });
 
-                    });
+                return CreatedAtAction(nameof(GetChartOfAccount), new { id }, dto);
             }
             catch (DuplicateNameException dex)
             {
                 return BadRequest(dex.Message);
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine($"An error occurred while updating chart of account");
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, "An error occurred while creating a new chart of account.");
             }
-            return NoContent();
         }
 
-        // DELETE: api/ChartOfAccounts/5
-        [HttpDelete("{id}")]
+        // PUT: api/ChartOfAccount/{id}
+        [HttpPut("{id:guid}")]
+        public async Task<ActionResult> PutChartOfAccount(Guid id, [FromBody] ChartOfAccountDto dto)
+        {
+            if (id != dto.Id) return BadRequest("Mismatched account ID");
+
+            try
+            {
+                await _mediator.Send(new ChartOfAccountUpdateCommand
+                {
+                    Id = dto.Id,
+                    AccountName = dto.AccountName,
+                    ParentId = dto.ParentId,
+                    AccountType = dto.AccountType,
+                    IsActive = dto.IsActive
+                });
+
+                return NoContent();
+            }
+            catch (DuplicateNameException dex)
+            {
+                return BadRequest(dex.Message);
+            }
+            catch
+            {
+                return StatusCode(500, "An error occurred while updating chart of account.");
+            }
+        }
+
+        // DELETE: api/ChartOfAccount/{id}
+        [HttpDelete("{id:guid}")]
         public async Task<IActionResult> DeleteChartOfAccount(Guid id)
         {
             if (id == Guid.Empty) return BadRequest("Invalid account ID");
+
             try
             {
                 var account = await _mediator.Send(new GetChartOfAccountByIdQuery { Id = id });
                 if (account == null) return NotFound();
+
                 await _mediator.Send(new ChartOfAccountDeleteCommand { Id = id });
+
+                return NoContent();
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine($"An error occurred while deleting chart of account");
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, "An error occurred while deleting chart of account.");
             }
-            return NoContent();
         }
     }
+
 }

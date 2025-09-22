@@ -17,7 +17,10 @@ namespace BPT.FMS.Application.Features.ChartOfAccount.Queries
         }
         public async Task<IEnumerable<BPT.FMS.Domain.Entities.ChartOfAccount>> Handle(GetAllChartOfAccountsQuery request, CancellationToken cancellationToken)
         {
-           return await _applicationUnitOfWork.ChartOfAccountRepository.GetAllAsync();
+           var accounts = await _applicationUnitOfWork.ChartOfAccountRepository.GetAllAsync();
+           if (request.Id.HasValue)
+              accounts = accounts.Where(a => a.Id != request.Id.Value).ToList();
+           return accounts;
         }
     }
 }
