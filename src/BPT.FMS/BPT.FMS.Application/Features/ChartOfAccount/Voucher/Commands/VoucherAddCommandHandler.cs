@@ -1,6 +1,5 @@
 ﻿using BPT.FMS.Domain;
 using BPT.FMS.Domain.Entities;
-using BPT.FMS.Domain.Features.ChartOfAccount.Voucher.Commands;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -8,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BPT.FMS.Application.Features.ChartOfAccount.Voucher.Commands
+namespace BPT.FMS.Application.Features.Voucher.Commands
 {
     public class VoucherAddCommandHandler : IRequestHandler<VoucherAddCommand>
     {

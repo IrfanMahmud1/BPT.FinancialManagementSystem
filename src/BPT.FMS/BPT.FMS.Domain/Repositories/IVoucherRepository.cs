@@ -9,7 +9,7 @@ namespace BPT.FMS.Domain.Repositories
 {
     public interface IVoucherRepository : IRepository<Voucher, Guid>
     {
-        public Task<(List<Voucher> data, int total, int totalDisplay)> GetPagedAccountsAsync(
+        public Task<(List<Voucher> data, int total, int totalDisplay)> GetPagedVouchersAsync(
     int pageIndex = 1, int pageSize = 10, string order = " asc", string? search = "");
         public Task CreateVoucherWithEntriesAsync(Voucher voucher);
     }

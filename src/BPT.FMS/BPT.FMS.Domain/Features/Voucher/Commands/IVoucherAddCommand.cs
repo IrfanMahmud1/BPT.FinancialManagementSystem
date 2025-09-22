@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BPT.FMS.Domain.Features.ChartOfAccount.Voucher.Commands
+namespace BPT.FMS.Domain.Features.Voucher.Commands
 {
     public interface IVoucherAddCommand
     {

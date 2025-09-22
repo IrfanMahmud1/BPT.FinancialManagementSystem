@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace BPT.FMS.Application.Features.Voucher.Queries
 {
-    public class GetVoucherByIdQuery : IRequest<BPT.FMS.Domain.Entities.Voucher>
+    public class GetAllVoucherEntriesByParentIdQuery : IRequest<IEnumerable<VoucherEntryDto>>, IGetAllVoucherEntriesByParentIdQuery
     {
-        public Guid Id { get; set; }
+        public Guid ParentId { get; set; }
     }
 }

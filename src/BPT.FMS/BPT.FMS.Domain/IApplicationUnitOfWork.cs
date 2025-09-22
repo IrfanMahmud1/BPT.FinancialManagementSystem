@@ -1,4 +1,5 @@
-﻿using BPT.FMS.Domain.Repositories;
+﻿using BPT.FMS.Domain.Entities;
+using BPT.FMS.Domain.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +12,7 @@ namespace BPT.FMS.Domain
     {
         public IChartOfAccountRepository ChartOfAccountRepository { get; }
         public IVoucherRepository VoucherRepository { get; }
+
+        public Task<IEnumerable<VoucherEntry>> GetAllByParentIdAsync(Guid parentId);
     }
 }

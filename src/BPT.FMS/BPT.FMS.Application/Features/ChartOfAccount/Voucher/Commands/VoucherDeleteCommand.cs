@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BPT.FMS.Application.Features.ChartOfAccount.Voucher.Commands
+namespace BPT.FMS.Application.Features.Voucher.Commands
 {
     public class VoucherDeleteCommand : IRequest, IVoucherDeleteCommand
     {

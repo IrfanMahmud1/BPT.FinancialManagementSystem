@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BPT.FMS.Application.Features.ChartOfAccount.Voucher.Queries
+namespace BPT.FMS.Application.Features.Voucher.Queries
 {
-    internal class IGetVoucherByIdQuery
+    public interface IGetVoucherByIdQuery
     {
+        public Guid Id { get; set; }
     }
 }
