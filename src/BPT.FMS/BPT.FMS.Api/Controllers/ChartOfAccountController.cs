@@ -58,7 +58,7 @@ namespace BPT.FMS.Api.Controllers
                     {
                         HttpUtility.HtmlEncode(acc.AccountName),
                         HttpUtility.HtmlEncode(acc.AccountType),
-                        HttpUtility.HtmlEncode(acc.Parent != null ? acc.Parent.AccountName : ""),
+                        HttpUtility.HtmlEncode(acc.Parent != null ? acc.Parent.AccountName : "N/A"),
                         acc.CreatedAt.ToString("yyyy-MM-dd"),
                         acc.Id.ToString()
                     }).ToArray()
@@ -81,7 +81,7 @@ namespace BPT.FMS.Api.Controllers
                 var account = await _mediator.Send(new GetChartOfAccountByIdQuery { Id = id });
                 if (account == null) return NotFound();
 
-                var dto = new ChartOfAccountDto
+                var response = new ChartOfAccountDto
                 {
                     Id = account.Id,
                     AccountName = account.AccountName,
@@ -91,7 +91,7 @@ namespace BPT.FMS.Api.Controllers
                     CreatedAt = account.CreatedAt
                 };
 
-                return Ok(dto);
+                return Ok(response);
             }
             catch
             {
@@ -101,7 +101,7 @@ namespace BPT.FMS.Api.Controllers
 
         // POST: api/ChartOfAccount
         [HttpPost]
-        public async Task<ActionResult> PostChartOfAccount([FromBody] ChartOfAccountDto dto)
+        public async Task<ActionResult> PostChartOfAccount(ChartOfAccountDto dto)
         {
 
             try

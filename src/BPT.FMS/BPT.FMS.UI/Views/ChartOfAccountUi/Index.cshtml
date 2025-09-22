@@ -1,0 +1,388 @@
+﻿@using BPT.FMS.Application.Features.ChartOfAccount.Queries
+@using BPT.FMS.Domain.Dtos
+
+@model GetPaginatedChartOfAccountsQuery
+@{
+    ViewData["Title"] = "Chart Of Accounts";
+}
+@section Styles {
+    <link href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css" rel="stylesheet" />
+    <!-- Add DataTables Buttons CSS -->
+    <link href="https://cdn.datatables.net/buttons/3.0.2/css/buttons.dataTables.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/selectize@0.12.6/dist/css/selectize.default.css" rel="stylesheet" />
+    <style>
+        .selectize-dropdown .selectize-dropdown-content .option {
+            cursor: pointer;
+        }
+    </style>
+}
+
+<div class="app-content">
+    <!--begin::Container-->
+    <div class="container-fluid">
+        <!--begin::Row-->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between">
+                            <div class=""><h3 class="card-title">Available Chart Of Accounts(COA)</h3></div>
+                            <div class="">
+                                <button type="button" class="btn btn-success me-3" id="show-create-coaModal">
+                                    <i class="bi bi-plus-lg"></i> Add COA
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                        <div class="rounded-2 alert alert-success alert-dismissible" id="responseSuccessArea" style="height:60px;display:none">
+                            <h3 class="text-success"></h3>
+                        </div>
+                        <div class="rounded-2 alert alert-danger alert-dismissible" id="responseErrorArea" style="height:60px;display:none">
+                            <h3 class="text-danger"></h3>
+                        </div>
+                        <partial name="_ChartOfAccountAddModal" model="new ChartOfAccountDto()" />
+                        <partial name="_ChartOfAccountUpdateModal" model="new ChartOfAccountDto()" />
+                        <partial name="_DeleteModalPartial" />
+
+                        <table id="coasTable" class="display" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th width="50%">AccountName</th>
+                                    <th>AccountType</th>
+                                    <th>ParentAccount</th>
+                                    <th>CreateAt</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th width="50%">AccountName</th>
+                                    <th>Type</th>
+                                    <th>ParentAccount</th>
+                                    <th>CreateAt</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <!-- /.card -->
+            </div>
+        </div>
+        <!--end::Row-->
+    </div>
+    <!--end::Container-->
+</div>
+<!--end::App Content-->
+@section Scripts {
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/selectize/dist/js/standalone/selectize.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+    <!-- Add required libraries for buttons -->
+    <script src="https://cdn.datatables.net/buttons/3.0.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.0.1/js/buttons.print.min.js"></script>
+
+    <script>
+        $(function() {
+           $("#coasTable").DataTable({
+               processing: true,
+                serverSide: true,
+                responsive: true,
+                lengthChange: true,
+                autoWidth: false,
+                lengthMenu: [
+                    [10, 25, 50, -1],
+                    [10, 25, 50, 'All']
+                ],
+                // Add buttons configuration
+                 layout: {
+                    topStart: 'buttons',  // Buttons on the Left
+                    topEnd: 'search',     // Search Bar on the Right
+                },
+                buttons: [
+                    'copy', 'csv', 'excel', 'pdf', 'print'
+                ],
+                ajax:{
+                    url: "/ChartOfAccountUi/GetChartOfAccountsJsonData",
+                    type: "POST",
+                    contentType: "application/json", //must be added
+                    dataType: "json", //better to add, not mandatory
+                     data: function (d) {
+                        d.SearchItem = {
+                        };
+                        return JSON.stringify(d);
+                    },
+               },
+
+               columnDefs: [
+                        {
+                            orderable: false,
+                            targets: 4,
+                            render: function (data, type, row) {
+                                return `
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-sm btn-secondary show-update-coaModal"
+                                            data-id="${data}">
+                                            <i class="bi bi-pencil-square"></i> Update
+                                        </button>
+
+                                        <button type="button" class="btn btn-sm btn-danger show-bs-modal"
+                                            data-id="${data}">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </button>
+                                    </div>
+                                `;
+                            }
+                        }
+                ]
+
+              });
+                 $('#coasTable').on('click', '.show-bs-modal', function () {
+                let id = $(this).data("id");
+                let deleteModal = $("#modal-delete");
+                deleteModal.find('.modal-body p').text('Are you sure you want to delete this coa?');
+                $('#delete-id').val(id);
+                $('#delete-form').attr('action', '/chartofaccountui/delete');
+                deleteModal.modal('show');
+            });
+
+        $('#delete-form').submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+
+            $.ajax({
+                type: form.attr('method'),
+                url: form.attr('action'),
+                data: form.serialize(),
+                success: function (response) {
+                    if(response.success){
+                         $('.text-success').text(response.message);
+                         $('#responseSuccessArea').show();
+
+                         $('#modal-delete').modal('hide');
+                         $('#coasTable').DataTable().ajax.reload();
+                         setTimeout(function() {
+                                $('#responseSuccessArea').fadeOut();
+                            },3000);
+                    }
+                    else{
+                        $('#responseErrorArea .text-danger').text(response.message || 'An error occurred');
+                        $('#responseErrorArea').show();
+                    }
+                },
+                error: function () {
+                }
+            });
+        });
+
+
+            $('#delete-button').click(function()
+            {
+                $('#delete-form').submit();
+            });
+
+          });
+
+        function loadChartOfAccountDropdownData(path,selectedParentId = null,childId = null) {
+            $(`#${path} .modal-body`).append('<div id="loading-spinner" class="text-center"><i class="fa fa-spinner fa-spin"></i> Loading...</div>');
+
+            let url = '/ChartOfAccountUi/GetAllChartOfAccounts';
+            if(childId)
+            {
+                url += `/${childId}`;
+            }
+
+            $.ajax({
+                url: url,
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    $(`#${path}-ddlParentId`).empty();
+
+                    $(`#${path}-ddlParentId`).append('<option value="">-- Select Parent --</option>');
+
+                    $.each(data, function (index, item) {
+                        $(`#${path}-ddlParentId`).append(
+                            '<option value="' + item.id + '">' + item.accountName + '</option>'
+                        );
+                    });
+
+                     if (selectedParentId && selectedParentId !== "0") {
+                        $(`#${path}-ddlParentId`).val(selectedParentId);
+                    }       
+
+                    $('#loading-spinner').remove();
+
+                    // $('#' + path).modal('show');
+                },
+                error: function (xhr, status, error) {
+                    $('#loading-spinner').remove();
+
+                    alert('Error loading store data: ' + error);
+
+                    $('#' + path).modal('show');
+                }
+            });
+        }
+
+        $('#show-create-coaModal').click(function () {
+            $('#coa-addModal-createForm')[0].reset();
+            $('#coa-addModal-createForm').find('.text-danger').text('');
+            $('#coa-addModal-createForm').find('.input-validation-error').removeClass('input-validation-error');
+            $('#coa-addModal-createButton').prop('disabled', false).text('Create');
+            loadChartOfAccountDropdownData('coa-addModal');
+            $('#coa-addModal').modal('show');
+        });
+
+        $('#coa-addModal-createForm').submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+
+        if (!form.valid()) {
+            return false;
+        }
+
+            form.find('.text-danger').text('');
+            form.find('.input-validation-error').removeClass('input-validation-error');
+
+            $('#coa-addModal-createButton').prop('disabled', true).text('Creating...');
+
+            $.ajax({
+                type: form.attr('method'),
+                url: form.attr('action'),
+                data: form.serialize(),
+                success: function (response) {
+                    if(response.success){
+                        $('#coa-addModal').modal('hide');
+                         $('.text-success').text(response.message);
+                         $('#responseSuccessArea').show();
+                        $('#coasTable').DataTable().ajax.reload();
+
+                            setTimeout(function() {
+                                $('#responseSuccessArea').fadeOut();
+                            }, 3000);
+                    }
+                    else{
+                        $('#coa-addModal-spnAccountName').text(response.message || 'An error occurred');
+                        $('#coa-addModal-createButton').prop('disabled', false).text('Create');
+
+                    }
+                },
+                error: function () {
+                    alert('An error occurred while creating the coa.');
+                },
+                complete: function() {
+                    $('#coa-addModal-updateButton').prop('disabled', false).text('Create');
+                }
+            });
+        });
+         $('#coa-addModal-createButton').click(function()
+            {
+                $('#coa-addModal-createForm').submit();
+            });
+
+
+        $(document).ready(function(){
+            $('#coasTable').on('click', '.show-update-coaModal', function () {
+                var id = $(this).data('id');
+
+                $(this).prop('disabled', true).html('<i class="bi bi-hourglass-split"></i> Loading...');
+
+                $.ajax({
+                    url: '/chartofaccountui/update/' + id,
+                    type: 'GET',
+                    success: function (response) {
+                        if (response && response.id) {
+                            $('#coa-updateModal-inpId').val(response.id);
+                            $('#coa-updateModal-txtAccountName').val(response.accountName);
+                            $('#coa-updateModal-ddlAccountType').val(response.accountType);
+                            $('#coa-updateModal-ddlParentId').val(response.parentId);
+                            $('#coa-updateModal-chbxIsActive').prop('checked', response.isActive);
+
+                            $('#coa-updateModal-updateForm').find('.text-danger').text('');
+                            $('#coa-updateModal-updateForm').find('.input-validation-error').removeClass('input-validation-error');
+                            loadChartOfAccountDropdownData('coa-updateModal',response.parentId,response.id);
+                            $('#coa-updateModal').modal('show');
+                        }    
+                        else{
+                            $('#responseErrorArea .text-danger').text(response.message || 'An error occurred');
+                            $('#responseErrorArea').show();
+                        }
+                    },
+                    error: function () {
+                    },
+                    complete: function() {
+                        $('.show-update-coaModal').prop('disabled', false).html('<i class="bi bi-pencil-square"></i> Update');
+                    }
+                });
+            });
+
+
+            $('#coa-updateModal-updateForm').submit(function (e) {
+                e.preventDefault();
+                var form = $(this);
+
+
+                form.find('.text-danger').text('');
+                form.find('.input-validation-error').removeClass('input-validation-error');
+
+                $('#coa-updateModal-updateButton').prop('disabled', true).text('Updating...');
+
+                $.ajax({
+                    type: form.attr('method'),
+                    url: form.attr('action'),
+                    data: form.serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            $('#coa-updateModal').modal('hide');
+
+                            $('.text-success').text(response.message || 'COA updated successfully');
+                            $('#responseSuccessArea').show();
+
+                            $('#coasTable').DataTable().ajax.reload(null, false);
+
+                            setTimeout(function() {
+                                $('#responseSuccessArea').fadeOut();
+                            }, 3000);
+                        } else {
+                                $('#coa-updateModal-spncoaName').text(response.message);
+                            }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Update failed:', error);
+
+                        if (xhr.status === 400 && xhr.responseJSON) {
+                            var errors = xhr.responseJSON;
+                            if (errors.errors) {
+                                for (var field in errors.errors) {
+                                    if (field.toLowerCase() === 'name') {
+                                        $('#coa-updateModal-spncoaName').text(errors.errors[field][0]);
+                                    }
+                                }
+                            }
+                        } else {
+                            alert('An error occurred while updating the coa. Please try again.');
+                        }
+                    },
+                    complete: function() {
+                        $('#coa-updateModal-updateButton').prop('disabled', false).text('Update');
+                    }
+                });
+            });
+
+            $('#coa-updateModal-updateButton').click(function () {
+                $('#coa-updateModal-updateForm').submit();
+            });
+        });
+    </script>
+
+}

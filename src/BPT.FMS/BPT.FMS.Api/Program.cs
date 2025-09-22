@@ -1,3 +1,5 @@
+using BPT.FMS.Api.Controllers;
+using BPT.FMS.Application.Features.ChartOfAccount.Commands;
 using BPT.FMS.Domain;
 using BPT.FMS.Domain.Repositories;
 using BPT.FMS.Infrastructure;
@@ -18,9 +20,10 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-builder.Services.AddHttpClient("FmsApi", client =>
+builder.Services.AddMediatR(cfg =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"]);
+    // If your handlers are in a different assembly, register that instead
+    cfg.RegisterServicesFromAssembly(typeof(ChartOfAccountAddCommand).Assembly);
 });
 
 builder.Services.AddFluentValidationAutoValidation();
@@ -29,15 +32,17 @@ builder.Services.AddValidatorsFromAssemblyContaining<ChartOfAccountValidator>();
 builder.Services.AddScoped<IChartOfAccountRepository,ChartOfAccountRepository>();
 builder.Services.AddScoped<IApplicationUnitOfWork, ApplicationUnitOfWork>();
 builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();

@@ -6,7 +6,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-
+builder.Services.AddHttpClient("FmsApi", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"]);
+});
 
 builder.Services.AddControllersWithViews();
 
@@ -36,7 +39,5 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
-app.MapRazorPages()
-   .WithStaticAssets();
 
 app.Run();
