@@ -85,14 +85,14 @@ namespace BPT.FMS.UI.Controllers
         }
 
         [HttpGet]
-        public ActionResult Logout()
+        public IActionResult Logout()
         {
             var adminEmail = HttpContext.Session.GetString("AdminEmail");
             TempData["SuccessMessage"] = $"User logged out successfully.";
 
             HttpContext.Session.Clear();
 
-            return Redirect("/Login");
+            return RedirectToAction("Login","AuthUi");
         }
     }
 }

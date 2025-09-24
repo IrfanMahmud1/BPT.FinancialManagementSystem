@@ -10,7 +10,9 @@ using Microsoft.EntityFrameworkCore.Storage.Json;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Web;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BPT.FMS.UI.Controllers
 {
@@ -34,29 +36,30 @@ namespace BPT.FMS.UI.Controllers
         }
 
         [HttpGet]
-        public async Task<JsonResult> GetAllVoucherEntriesAsync(GetVoucherEntriesDto query)
+        public async Task<IActionResult> VoucherEntries(Guid id)
         {
             try
             {
-                var url = $"api/Voucher/all/{query.voucherId}?pageIndex={query.PageIndex}&pageSize={query.PageSize}" +
-                 $"&sortColumn={Uri.EscapeDataString(query.FormatSortExpression("VoucherType", "Account", "Debit","Credit"))}&search={Uri.EscapeDataString(query.Search.Value)}";
+                var url = $"api/Voucher/entries?voucherId={id}";
+
                 var response = await _httpClient.GetAsync(url);
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    return Json(new List<ChartOfAccountDto>());
+                    return Json(new List<VoucherEntryDto>());
                 }
 
                 var stream = await response.Content.ReadAsStreamAsync();
                 var result = await JsonSerializer.DeserializeAsync<IEnumerable<VoucherEntryDto>>(stream, _jsonOptions);
 
-                return Json(result ?? new List<VoucherEntryDto>());
+                return View(result ?? new List<VoucherEntryDto>());
             }
             catch
             {
-                return Json(new List<VoucherEntryDto>());
+                return View(new List<VoucherEntryDto>());
             }
         }
+
 
         [HttpPost]
         public async Task<IActionResult> CreateAsync(VoucherDto model)

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BPT.FMS.Domain.Dtos
 {
-    public class GetVoucherEntriesDto : DataTables
+    public class GetVoucherEntriesDto
     {
         public Guid voucherId { get; set; }
     }

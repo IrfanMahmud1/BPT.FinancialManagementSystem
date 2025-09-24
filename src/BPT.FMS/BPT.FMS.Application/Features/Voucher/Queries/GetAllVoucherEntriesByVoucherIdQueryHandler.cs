@@ -11,16 +11,16 @@ using System.Threading.Tasks;
 
 namespace BPT.FMS.Application.Features.Voucher.Queries
 {
-    public class GetAllVoucherEntriesByVoucherIdQueryHandler : IRequestHandler<GetAllVoucherEntriesByVoucherIdQuery, (IList<BPT.FMS.Domain.Entities.VoucherEntry>,int,int)>
+    public class GetAllVoucherEntriesByVoucherIdQueryHandler : IRequestHandler<GetAllVoucherEntriesByVoucherIdQuery, List<BPT.FMS.Domain.Dtos.VoucherEntryDto>>
     {
         private readonly IApplicationUnitOfWork _applicationUnitOfWork;
         public GetAllVoucherEntriesByVoucherIdQueryHandler(IApplicationUnitOfWork applicationUnitOfWork)
         {
             _applicationUnitOfWork = applicationUnitOfWork;
         }
-        public async Task<(IList<BPT.FMS.Domain.Entities.VoucherEntry>, int, int)> Handle(GetAllVoucherEntriesByVoucherIdQuery request, CancellationToken cancellationToken)
+        public async Task<List<BPT.FMS.Domain.Dtos.VoucherEntryDto>> Handle(GetAllVoucherEntriesByVoucherIdQuery request, CancellationToken cancellationToken)
         {
-            return await _applicationUnitOfWork.GetPagedVoucherEntriesAsync(request.voucherId, request.pageIndex, request.pageSize, request.sortColumn, request.search);
+            return await _applicationUnitOfWork.GetVoucherEntriesByVoucherIdAsync(request.voucherId);
         }
     }
 }

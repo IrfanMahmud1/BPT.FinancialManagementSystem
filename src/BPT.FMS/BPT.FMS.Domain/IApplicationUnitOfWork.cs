@@ -1,4 +1,5 @@
-﻿using BPT.FMS.Domain.Entities;
+﻿using BPT.FMS.Domain.Dtos;
+using BPT.FMS.Domain.Entities;
 using BPT.FMS.Domain.Repositories;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ namespace BPT.FMS.Domain
 {
     public interface IApplicationUnitOfWork : IUnitOfWork
     {
+        public Task<List<VoucherEntryDto>> GetVoucherEntriesByVoucherIdAsync(Guid voucherId);
         public IChartOfAccountRepository ChartOfAccountRepository { get; }
         public IVoucherRepository VoucherRepository { get; }
         public IUserRepository UserRepository { get; }

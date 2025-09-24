@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BPT.FMS.Domain.Dtos;
 
 namespace BPT.FMS.Infrastructure
 {
@@ -30,8 +31,37 @@ namespace BPT.FMS.Infrastructure
             UserRepository = userRepository;
             _context = context;
         }
+
+        public async Task<List<VoucherEntryDto>> GetVoucherEntriesByVoucherIdAsync(Guid voucherId)
+        {
+            return await _context.VoucherEntries
+                                 .AsNoTracking()
+                                 .AsSplitQuery()
+                                 .Where(ve => ve.VoucherId == voucherId)
+                                 .Select(ve => new VoucherEntryDto
+                                 {
+                                     Id = ve.Id,
+                                     ChartOfAccountId = ve.ChartOfAccountId,
+                                     Debit = ve.Debit,
+                                     Credit = ve.Credit,
+                                     VoucherId = ve.VoucherId,
+                                     Voucher = ve.Voucher == null ? null : new VoucherDto
+                                     {
+                                         Id = ve.Voucher.Id,
+                                         Type = ve.Voucher.Type,
+                                         Date = ve.Voucher.Date,
+                                         ReferenceNo = ve.Voucher.ReferenceNo
+                                     },
+                                        ChartOfAccount = ve.ChartOfAccount == null ? null : new ChartOfAccountDto
+                                        {
+                                            Id = ve.ChartOfAccount.Id,
+                                            AccountName = ve.ChartOfAccount.AccountName,
+                                        }
+                                 })
+                                 .ToListAsync();
+        }
         public async Task<(List<VoucherEntry> data, int total, int totalDisplay)> GetPagedVoucherEntriesAsync(
-           Guid voucherId, int pageIndex = 1, int pageSize = 10, string order = "Type asc", string? search = "")
+           Guid voucherId, int pageIndex = 1, int pageSize = 10, string order = "Debit asc", string? search = "")
         {
             int total = await _context.Vouchers.CountAsync();
 

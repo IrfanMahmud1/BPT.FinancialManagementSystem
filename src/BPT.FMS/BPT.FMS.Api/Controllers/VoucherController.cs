@@ -20,25 +20,13 @@ namespace BPT.FMS.Api.Controllers
         {
             _mediator = mediator;
         }
-        [HttpGet("paginated/{voucherId:guid}")]
-        public async Task<ActionResult> GetAllVoucherEntries([FromQuery] GetAllVoucherEntriesByVoucherIdQuery query)
+        [HttpGet("entries")]
+        public async Task<ActionResult<List<VoucherEntryDto>>> GetAllVoucherEntries([FromQuery] GetAllVoucherEntriesByVoucherIdQuery query)
         {
             try
             {
-                var (data, total, totalDisplay) = await _mediator.Send(query);
-                var entries = new
-                {
-                    recordsTotal = total,
-                    recordsFiltered = totalDisplay,
-                    data = data.Select(v => new string[]
-                    {
-                        HttpUtility.HtmlEncode(v.Voucher.Type),
-                        HttpUtility.HtmlEncode(v.ChartOfAccount.AccountName),
-                        v.Debit.ToString("F2"),
-                        v.Credit.ToString("F2"),
-                    }).ToArray()
-                };
-                return Ok(entries);
+                var entries = await _mediator.Send(query);
+                return entries;
             }
             catch
             {

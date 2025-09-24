@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BPT.FMS.Domain.Entities
 {
-    public class VoucherEntry
+    public class VoucherEntry : IEntity<Guid>
     {
         public Guid Id { get; set; }
         public Guid VoucherId { get; set; }

@@ -13,5 +13,8 @@ namespace BPT.FMS.Domain.Dtos
         public Guid ChartOfAccountId { get; set; }
         public decimal Debit { get; set; }
         public decimal Credit { get; set; }
+
+        public VoucherDto? Voucher { get; set; }
+        public ChartOfAccountDto? ChartOfAccount { get; set; }
     }
 }

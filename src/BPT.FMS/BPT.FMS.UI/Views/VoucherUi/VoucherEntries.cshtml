@@ -1,20 +1,10 @@
 ﻿@using BPT.FMS.Domain.Dtos
-@model GetVoucherEntriesDto
+@model IEnumerable<VoucherEntryDto>
 @{
     ViewData["Title"] = "VoucherEntries";
 }
 
-@section Styles {
-    <link href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css" rel="stylesheet" />
-    <!-- Add DataTables Buttons CSS -->
-    <link href="https://cdn.datatables.net/buttons/3.0.2/css/buttons.dataTables.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/selectize@0.12.6/dist/css/selectize.default.css" rel="stylesheet" />
-    <style>
-        .selectize-dropdown .selectize-dropdown-content .option {
-            cursor: pointer;
-        }
-    </style>
-}
+
 
 <div class="app-content">
     <!--begin::Container-->
@@ -26,16 +16,11 @@
                     <div class="card-header">
                         <div class="d-flex justify-content-between">
                             <div class=""><h3 class="card-title">Available Voucher Entries</h3></div>
-                            <div class="">
-                                <button type="button" class="btn btn-success me-3" id="show-create-voucherModal">
-                                    <i class="bi bi-plus-lg"></i> Add Voucher
-                                </button>
-                            </div>
                         </div>
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body">
-                        <table id="voucherEntriesTable" class="display" style="width:100%">
+                        <table id="voucherEntriesTable" class="display table table-striped-columns" style="width:100%">
                             <thead>
                                 <tr>
                                     <th>VoucherType</th>
@@ -44,6 +29,15 @@
                                     <th>Credit</th>
                                 </tr>
                             </thead>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>@item.Voucher.Type</td>
+                                        <td>@item.ChartOfAccount.AccountName</td>
+                                        <td>@item.Debit</td>
+                                        <td>@item.Credit</td>
+                                    </tr>
+                                }
                             <tbody>
                             </tbody>
                             <tfoot>
@@ -64,71 +58,5 @@
     </div>
     <!--end::Container-->
 </div>
-<!--end::App Content-->
-@section Scripts {
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/selectize/dist/js/standalone/selectize.min.js"></script>
-    <partial name="_ValidationScriptsPartial" />
-    <!-- Add required libraries for buttons -->
-    <script src="https://cdn.datatables.net/buttons/3.0.1/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 
-    <script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.html5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/3.0.1/js/buttons.print.min.js"></script>
-    <script>
-        let entries = [];
-        function VoucherEntries(){
-            var id = '@Model.voucherId';
-            $("#voucherEntriesTable").DataTable({
-                processing: true,
-                serverSide: true,
-                responsive: true,
-                lengthChange: true,
-                autoWidth: false,
-                lengthMenu: [
-                    [10, 25, 50, -1],
-                    [10, 25, 50, 'All']
-                ],
-                // Add buttons configuration
-                 layout: {
-                    topStart: 'buttons',  // Buttons on the Left
-                     topEnd: 'search',    // Search Bar on the Right
-                },
-                buttons: [
-                    'copy', 'csv', 'excel', 'pdf', 'print'
-                ],
-                ajax:{
-                    url: "/VoucherUi/GetVoucherEntriesJsonData/" + id,
-                    type: "POST",
-                    contentType: "application/json", //must be added
-                    dataType: "json", //better to add, not mandatory
-                    data: function (d) {
-                        d.SearchItem = {
-                        };
-                        return JSON.stringify(d);
-                    },
-               },
-
-               columnDefs: [
-                        {
-                            orderable: false,
-                            targets: 3,
-                            render: function (data, type, row) {
-                                return `
-                                `;
-                            }
-                        }
-                ]
-
-              });
-        }
-        $(function() {
-            VoucherEntries();
-        });
-    </script>
-
-}
 
