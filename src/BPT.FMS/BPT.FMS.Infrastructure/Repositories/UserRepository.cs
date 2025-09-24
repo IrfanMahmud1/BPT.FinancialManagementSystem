@@ -17,7 +17,7 @@ namespace BPT.FMS.Infrastructure.Repositories
 
         public UserRepository( ApplicationDbContext dbContext) : base(dbContext)
         {
-            
+            _context = dbContext;
         }
 
 

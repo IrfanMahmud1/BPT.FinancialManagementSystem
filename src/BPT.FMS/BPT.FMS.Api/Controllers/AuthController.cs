@@ -36,17 +36,14 @@ namespace BPT.FMS.Api.Controllers
                 return Unauthorized(new { message = result.Message });
             }
 
-            return Ok(new
+            return Ok(new AuthenticationResultDto
             {
-                token = result.Token,
-                admin = new
-                {
-                    result.User?.Id,
-                    result.User?.Email,
-                    result.User?.UserName,
-                    result.User?.AccessLevel
-                }
+                IsSuccess = true,
+                Token = result.Token,
+                Message = "Login successful",
+                User = result.User
             });
+
         }
     }
 }

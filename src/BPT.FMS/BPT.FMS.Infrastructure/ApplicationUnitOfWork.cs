@@ -27,6 +27,7 @@ namespace BPT.FMS.Infrastructure
         {
             ChartOfAccountRepository = chartOfAccountRepository;
             VoucherRepository = voucherRepository;
+            UserRepository = userRepository;
             _context = context;
         }
         public async Task<(List<VoucherEntry> data, int total, int totalDisplay)> GetPagedVoucherEntriesAsync(

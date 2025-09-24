@@ -1,3 +1,4 @@
+using BPT.FMS.Infrastructure.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,10 +7,21 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+builder.Services.Configure<JwtSettings>(
+    builder.Configuration.GetSection("JwtSettings"));
+
 builder.Services.AddHttpClient("FmsApi", client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"]);
     client.Timeout = TimeSpan.FromSeconds(30); // Adjust as needed
+});
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromHours(24);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
 });
 
 builder.Services.AddControllersWithViews();
@@ -30,14 +42,14 @@ else
 
 app.UseHttpsRedirection();
 app.UseRouting();
-
+app.UseSession();
 app.UseAuthorization();
 
 app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
+    pattern: "{controller=AuthUi}/{action=Login}/{id?}")
     .WithStaticAssets();
 
 

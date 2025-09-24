@@ -18,6 +18,7 @@ namespace BPT.FMS.Application.Features.User.Commands
             IJwtTokenGenerator jwtTokenGenerator)
         {
             _applicationUnitOfWork = applicationUnitOfWork;
+            _jwtTokenGenerator = jwtTokenGenerator;
         }
         public async Task<AuthenticationResultDto> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
