@@ -116,7 +116,6 @@ namespace BPT.FMS.UI.Controllers
         {
             try
             {
-            //https://localhost:7060/api/ChartOfAccount/paginated?pageIndex=1&pageSize=10&sortColumn=AccountName%20asc&search=general
                 var url = $"api/ChartOfAccount/paginated?pageIndex={query.PageIndex}&pageSize={query.PageSize}" +
                  $"&sortColumn={Uri.EscapeDataString(query.FormatSortExpression("AccountName", "AccountType", "ParentAccount", "CreateAt"))}&search={Uri.EscapeDataString(query.Search.Value)}";
 

@@ -1,0 +1,349 @@
+﻿@using BPT.FMS.Domain.Dtos
+@using BPT.FMS.Domain.Entities
+@model GetVouchersDto
+@{
+    ViewData["Title"] = "Vouchers";
+}
+@section Styles {
+    <link href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css" rel="stylesheet" />
+    <!-- Add DataTables Buttons CSS -->
+    <link href="https://cdn.datatables.net/buttons/3.0.2/css/buttons.dataTables.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/selectize@0.12.6/dist/css/selectize.default.css" rel="stylesheet" />
+    <style>
+        .selectize-dropdown .selectize-dropdown-content .option {
+            cursor: pointer;
+        }
+    </style>
+}
+
+<div class="app-content">
+    <!--begin::Container-->
+    <div class="container-fluid">
+        <!--begin::Row-->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between">
+                            <div class=""><h3 class="card-title">Available Vouchers</h3></div>
+                            <div class="">
+                                <button type="button" class="btn btn-success me-3" id="show-create-voucherModal">
+                                    <i class="bi bi-plus-lg"></i> Add Voucher
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                        <div class="rounded-2 alert alert-success alert-dismissible" id="responseSuccessArea" style="height:60px;display:none">
+                            <h3 class="text-success"></h3>
+                        </div>
+                        <div class="rounded-2 alert alert-danger alert-dismissible" id="responseErrorArea" style="height:60px;display:none">
+                            <h3 class="text-danger"></h3>
+                        </div>
+                        <partial name="_VoucherAddModal" model="new VoucherDto()" />
+                        @* <partial name="_VouchersSearchModal" model="new GetVouchersVM()" /> *@
+                        <partial name="_DeleteModalPartial" />
+
+                        <table id="vouchersTable" class="display" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <!-- /.card -->
+            </div>
+        </div>
+        <!--end::Row-->
+    </div>
+    <!--end::Container-->
+</div>
+<!--end::App Content-->
+@section Scripts {
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/selectize/dist/js/standalone/selectize.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+    <!-- Add required libraries for buttons -->
+    <script src="https://cdn.datatables.net/buttons/3.0.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
+    <script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.0.1/js/buttons.print.min.js"></script>
+    <script>
+        let entries = [];
+        function Vouchers(){
+            $("#vouchersTable").DataTable({
+                processing: true,
+                serverSide: true,
+                responsive: true,
+                lengthChange: true,
+                autoWidth: false,
+                lengthMenu: [
+                    [10, 25, 50, -1],
+                    [10, 25, 50, 'All']
+                ],
+                // Add buttons configuration
+                 layout: {
+                    topStart: 'buttons',  // Buttons on the Left
+                     topEnd: 'search',    // Search Bar on the Right
+                },
+                buttons: [
+                    'copy', 'csv', 'excel', 'pdf', 'print'
+                ],
+                ajax:{
+                    url: "/VoucherUi/GetVouchersJsonData",
+                    type: "POST",
+                    contentType: "application/json", //must be added
+                    dataType: "json", //better to add, not mandatory
+                    data: function (d) {
+                        d.SearchItem = {
+                        };
+                        return JSON.stringify(d);
+                    },
+               },
+
+               columnDefs: [
+                        {
+                            orderable: false,
+                            targets: 3,
+                            render: function (data, type, row) {
+                                return `
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-sm btn-secondary show-entries-voucherModal"
+                                            data-id="${data}">
+                                            <i class="bi bi-pencil-square"></i> Entries
+                                        </button>
+
+                                        <button type="button" class="btn btn-sm btn-danger show-bs-modal"
+                                            data-id="${data}">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </button>
+                                    </div>
+                                `;
+                            }
+                        }
+                ]
+
+              });
+        }
+        $(function() {
+            Vouchers();
+        });
+
+            $('#vouchersTable').on('click', '.show-entries-voucherModal', function () {
+                let id = $(this).data("id");
+                window.location.href = '/VoucherUi/VoucherEntries/' + id;
+            });
+            $('#vouchersTable').on('click', '.show-bs-modal', function () {
+                let id = $(this).data("id");
+                let deleteModal = $("#modal-delete");
+                deleteModal.find('.modal-body p').text('Are you sure you want to delete this voucher?');
+                $('#delete-id').val(id);
+                $('#delete-form').attr('action', '/voucherui/delete');
+                deleteModal.modal('show');
+            });
+
+        $('#delete-form').submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+
+            $.ajax({
+                type: form.attr('method'),
+                url: form.attr('action'),
+                data: form.serialize(),
+                success: function (response) {
+                    if(response.success){
+                         $('.text-success').text(response.message);
+                         $('#responseSuccessArea').show();
+
+                         $('#modal-delete').modal('hide');
+                         $('#vouchersTable').DataTable().ajax.reload();
+                         setTimeout(function() {
+                                $('#responseSuccessArea').fadeOut();
+                            },3000);
+                    }
+                    else{
+                        $('#responseErrorArea .text-danger').text(response.message || 'An error occurred');
+                        $('#responseErrorArea').show();
+                    }
+                },
+                error: function () {
+                }
+            });
+        });
+
+
+            $('#delete-button').click(function()
+            {
+                $('#delete-form').submit();
+            });
+
+         function loadChartOfAccountDropdownData(path) {
+            $(`#${path} .modal-body`).append('<div id="loading-spinner" class="text-center"><i class="fa fa-spinner fa-spin"></i> Loading...</div>');
+
+            let url = '/ChartOfAccountUi/GetAllChartOfAccounts';
+
+            $.ajax({
+                url: url,
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    $(`#${path}-ddlChartOfAccountId`).empty();
+
+                    $(`#${path}-ddlChartOfAccountId`).append('<option value="">-- Select Account --</option>');
+
+                    $.each(data, function (index, item) {
+                        $(`#${path}-ddlChartOfAccountId`).append(
+                            '<option value="' + item.id + '">' + item.accountName + '</option>'
+                        );
+                    });
+
+
+                    $('#loading-spinner').remove();
+
+                    // $('#' + path).modal('show');
+                },
+                error: function (xhr, status, error) {
+                    $('#loading-spinner').remove();
+
+                    alert('Error loading store data: ' + error);
+
+                    $('#' + path).modal('show');
+                }
+            });
+        }
+
+        function addEntry() {
+            let accountDropdown = $("#voucher-addModal-ddlChartOfAccountId");
+            let accountId = accountDropdown.val();
+            let accountName = accountDropdown.find("option:selected").text();
+
+            let debit = $("#voucher-addModal-nbrDebit").val().trim();
+            let credit = $("#voucher-addModal-nbrCredit").val().trim();
+
+            // Validation
+            if (!accountId || (!debit && !credit)) {
+                alert("Please select an account and enter either Debit or Credit.");
+                return;
+            }
+
+            // Show table if hidden
+            $("#addedVoucherEntriesTable").show();
+
+            // Add row
+            let newRow = `
+                <tr>
+                    <td data-account-id="${accountId}">${accountName}</td>
+                    <td>${debit || 0}</td>
+                    <td>${credit || 0}</td>
+                </tr>
+            `;
+
+            $("#dtVoucherEntriesList tbody").append(newRow);
+
+            // Clear inputs
+            accountDropdown.val("");
+            $("#voucher-addModal-nbrDebit").val("");
+            $("#voucher-addModal-nbrCredit").val("");
+        }
+
+        $('#show-create-voucherModal').click(function () {
+            $('#voucher-addModal-createForm')[0].reset();
+            $('#voucher-addModal-createForm').find('.text-danger').text('');
+            $('#voucher-addModal-createForm').find('.input-validation-error').removeClass('input-validation-error');
+            $('#voucher-addModal-createButton').prop('disabled', false).text('Create');
+            loadChartOfAccountDropdownData('voucher-addModal');
+            $('#voucher-addModal').modal('show');
+        });
+
+        $('#voucher-addModal-createForm').submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+
+            if (!form.valid()) {
+                $('#voucher-addModal-createButton').prop('disabled', false).text('Create');
+                return false;
+            }
+
+            form.find('.text-danger').text('');
+            form.find('.input-validation-error').removeClass('input-validation-error');
+            $('#voucher-addModal-createButton').prop('disabled', true).text('Creating...');
+
+            let type = $('#voucher-addModal-ddlType').val();
+            let referenceNo = $('#voucher-addModal-txtReferenceNo').val();
+            let date = $('#voucher-addModal-dteDate').val();
+            let entries = [];
+
+            $("#dtVoucherEntriesList tbody tr").each(function () {
+                let accountId = $(this).find("input[name='AccountId']").val();
+                let debit = $(this).find("input[name='Debit']").val();
+                let credit = $(this).find("input[name='Credit']").val();
+
+                entries.push({
+                    ChartOfAccountId: accountId,
+                    Debit: debit,
+                    Credit: credit
+                });
+            });
+            if (entries.length === 0) {
+                alert("Please add at least one entry before creating the voucher.");
+                $('#voucher-addModal-createButton').prop('disabled', false).text('Create');
+                return;
+            }
+
+            var formData = new FormData();
+            formData.append("Type", type);
+            formData.append("ReferenceNo", referenceNo);
+            formData.append("Date", date);
+
+        // append entries in array-style keys
+        entries.forEach((entry, i) => {
+            formData.append(`Entries[${i}].ChartOfAccountId`, entry.AccountId);
+            formData.append(`Entries[${i}].Debit`, entry.Debit);
+            formData.append(`Entries[${i}].Credit`, entry.Credit);
+        });
+
+
+            $.ajax({
+                url: '@Url.Action("Create", "VoucherUi")',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    alert("Data saved successfully!");
+                    console.log(response);
+                },
+                error: function (xhr, status, error) {
+                    alert("Error: " + error);
+                    $('#voucher-addModal-createButton').prop('disabled', false).text('Create');
+                }
+            });
+        });
+        
+         $('#voucher-addModal-createButton').click(function()
+         {
+                $('#voucher-addModal-createForm').submit();
+         });
+    </script>
+
+}

@@ -10,10 +10,10 @@
     <None Remove="Features\ChartOfAccount\Commands\ChartOfAccountAddCommand.cs~RF290c8b.TMP" />
     <None Remove="Features\ChartOfAccount\Commands\ChartOfAccountUpdateCommand.cs~RF500569.TMP" />
     <None Remove="Features\ChartOfAccount\Queries\GetPaginatedChartOfAccountsQuery.cs~RFfc1acaa.TMP" />
-    <None Remove="Features\ChartOfAccount\Voucher\Commands\VoucherAddCommandHandler.cs~RF2c4f846.TMP" />
-    <None Remove="Features\ChartOfAccount\Voucher\Queries\GetAllVoucherEntriesByParentIdQuery.cs~RF2d41ad9.TMP" />
-    <None Remove="Features\ChartOfAccount\Voucher\Queries\GetAllVoucherEntriesByParentIdQuery.cs~RF2e8ffaa.TMP" />
-    <None Remove="Features\ChartOfAccount\Voucher\Queries\GetPaginatedVouchersQuery.cs~RF2eb9345.TMP" />
+    <None Remove="Features\Voucher\Commands\VoucherAddCommandHandler.cs~RF2c4f846.TMP" />
+    <None Remove="Features\Voucher\Queries\GetAllVoucherEntriesByParentIdQuery.cs~RF2d41ad9.TMP" />
+    <None Remove="Features\Voucher\Queries\GetAllVoucherEntriesByParentIdQuery.cs~RF2e8ffaa.TMP" />
+    <None Remove="Features\Voucher\Queries\GetPaginatedVouchersQuery.cs~RF2eb9345.TMP" />
   </ItemGroup>
 
   <ItemGroup>

@@ -101,7 +101,7 @@ namespace BPT.FMS.Api.Controllers
 
         // POST: api/ChartOfAccount
         [HttpPost]
-        public async Task<ActionResult> PostChartOfAccount(VoucherDto dto)
+        public async Task<ActionResult> PostChartOfAccount(ChartOfAccountDto dto)
         {
 
             try

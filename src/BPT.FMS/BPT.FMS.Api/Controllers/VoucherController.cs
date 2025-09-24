@@ -6,6 +6,7 @@ using BPT.FMS.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Web;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BPT.FMS.Api.Controllers
 {
@@ -20,20 +21,24 @@ namespace BPT.FMS.Api.Controllers
             _mediator = mediator;
         }
         [HttpGet("all/{voucherId:guid}")]
-        public async Task<ActionResult<IEnumerable<VoucherEntryDto>>> GetAllVoucherEntries(Guid voucherId)
+        public async Task<ActionResult> GetAllVoucherEntries([FromQuery] GetAllVoucherEntriesByVoucherIdQuery query)
         {
             try
             {
-                var entries = await _mediator.Send(new GetAllVoucherEntriesByParentIdQuery{ ParentId = voucherId });
-                var dtos = entries.Select(acc => new VoucherEntryDto
+                var (data, total, totalDisplay) = await _mediator.Send(query);
+                var entries = new
                 {
-                    Id = acc.Id,
-                    AccountName = acc.AccountName,
-                    VoucherId = acc.VoucherId,
-                    Debit = acc.Debit,
-                    Credit = acc.Credit,
-                });
-                return Ok(dtos);
+                    recordsTotal = total,
+                    recordsFiltered = totalDisplay,
+                    data = data.Select(v => new string[]
+                    {
+                        HttpUtility.HtmlEncode(v.Voucher.Type),
+                        HttpUtility.HtmlEncode(v.ChartOfAccount.AccountName),
+                        v.Debit.ToString("F2"),
+                        v.Credit.ToString("F2"),
+                    }).ToArray()
+                };
+                return Ok(entries);
             }
             catch
             {
@@ -97,7 +102,7 @@ namespace BPT.FMS.Api.Controllers
 
         // POST: api/Voucher
         [HttpPost]
-        public async Task<ActionResult> PostVoucher(VoucherDto dto)
+        public async Task<ActionResult> PostVoucher(VoucherDto model)
         {
 
             try
@@ -107,20 +112,20 @@ namespace BPT.FMS.Api.Controllers
                 await _mediator.Send(new VoucherAddCommand
                 {
                     Id = id,
-                    Type = dto.Type,
-                    Date = dto.Date,
-                    ReferenceNo = dto.ReferenceNo,
-                    Entries = dto.Entries.Select(e => new VoucherEntry
+                    Type = model.Type,
+                    Date = model.Date,
+                    ReferenceNo = model.ReferenceNo,
+                    Entries = model.Entries.Select(e => new VoucherEntry
                     {
                         Id = e.Id,
-                        AccountName = e.AccountName,
+                        ChartOfAccountId = e.ChartOfAccountId,
                         VoucherId = id,
                         Debit = e.Debit,
                         Credit = e.Credit,
                     }).ToList()
                 });
 
-                return CreatedAtAction(nameof(GetVoucher), new { id }, dto);
+                return CreatedAtAction(nameof(GetVoucher), new { id }, model);
             }
             catch (DuplicateNameException dex)
             {

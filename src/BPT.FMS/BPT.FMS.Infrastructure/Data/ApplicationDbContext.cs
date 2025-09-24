@@ -32,7 +32,7 @@ namespace BPT.FMS.Infrastructure.Data
             modelBuilder.Entity<VoucherEntry>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.AccountName).IsRequired();
+                entity.Property(e => e.ChartOfAccountId).IsRequired();
                 entity.Property(e => e.Debit).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.Credit).HasColumnType("decimal(18,2)");
             });

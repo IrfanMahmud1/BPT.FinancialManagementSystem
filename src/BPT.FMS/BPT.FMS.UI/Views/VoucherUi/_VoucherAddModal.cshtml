@@ -1,0 +1,121 @@
+﻿@using BPT.FMS.Domain.Dtos
+@model VoucherDto;
+@{
+    ViewData["Title"] = "Add Voucher";
+    var formattedDate = DateTime.Now.ToString("yyyy-MM-ddTHH:mm");
+}
+
+<div class="modal fade" id="voucher-addModal">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title text-dark-emphasis fw-bolder fs-5">Create</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row col-md-12 col-sm-12 col-sx-12">
+                    <form id="voucher-addModal-createForm" asp-antiforgery="true" asp-area="" asp-controller="PurchaseOrder"
+                          asp-action="Create" method="post">
+                        <div asp-validation-summary="All" class="text-danger"></div>
+
+                        <div class="card-body">
+                            <div class="row justify-content-center">
+                                <div class="row mb-1 col-md-12 col-sm-12 col-sx-12">
+                                    <!-- Type -->
+                                    <div class="row align-items-center col-md-6 col-sm-12 col-sx-12">
+                                        <label class="col-form-label fw-bold">Type</label>
+                                        <div>
+                                            <select asp-for="Type" id="voucher-addModal-ddlType" class="form-select" required>
+                                                <option value="">Select Type</option>
+                                                <option value="PurchaseOrder">Purchase Order</option>
+                                                <option value="GoodsReceivedNote">Goods Received Note</option>
+                                                <option value="Invoice">Invoice</option>
+                                                <option value="Payment">Payment</option>
+                                            </select>
+                                            <span asp-validation-for="Type" class="text-danger" id="voucher-addModal-spnType"></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Reference -->
+                                    <div class="mb-1 row align-items-center col-md-6 col-sm-12 col-sx-12">
+                                        <label class="col-form-label fw-bold">Reference No</label>
+                                        <div>
+                                            <input type="text" asp-for="ReferenceNo" id="voucher-addModal-txtReferenceNo" class="form-control" />
+                                            <span asp-validation-for="ReferenceNo" class="text-danger" id="voucher-addModal-spnReferenceNo"></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Date -->
+                                    <div class="mb-1 row align-items-center">
+                                        <label class="col-form-label fw-bold">Date</label>
+                                        <div>
+                                            <input type="datetime-local" asp-for="Date" id="voucher-addModal-dteDate" min="@formattedDate" value="@formattedDate" class="form-control" />
+                                            <span asp-validation-for="Date" class="text-danger" id="voucher-addModal-spnDate"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row justify-content-center mb-4 col-md-12 col-sm-12 col-sx-12">
+                        <!-- Account -->
+                        <div class="mb-1 row align-items-center col-md-4">
+                            <label class="col-form-label fw-bold">Account</label>
+                            <div>
+                                <select id="voucher-addModal-ddlChartOfAccountId" name="voucher-addModal-ddlChartOfAccountId" class="form-select">
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Debit -->
+                        <div class="mb-1 row align-items-center col-md-4">
+                            <label class="col-form-label fw-bold">Debit</label>
+                            <div>
+                                <input type="number" id="voucher-addModal-nbrDebit" class="form-control" />
+                            </div>
+                        </div>
+
+                        <!-- Credit -->
+                        <div class="mb-1 row align-items-center col-md-4">
+                            <label class="col-form-label fw-bold">Credit</label>
+                            <div>
+                                <input type="number" id="voucher-addModal-nbrCredit" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row text-center col-md-12 col-sm-12 col-sx-12">
+                        <div class="text-center" style="width:100%; flex: 1; padding-top:10px">
+                            <button id="btnAdd" onclick="addEntry()" type="button" style="width: 120px" class="btn btn-success btn-sm details-text">Add</button>
+                        </div>
+                    </div>
+                    <div class="row text-center col-md-12 col-sm-12 col-sx-12">
+                        <div id="addedVoucherEntriesTable" style="display: none;" class="row col-md-12 col-sm-12 col-sx-12">
+                            <table id="dtVoucherEntriesList" class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Account</th>
+                                        <th>Debit</th>
+                                        <th>Credit</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer bg-secondary-subtle">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="voucher-addModal-createButton" class="btn btn-danger">Create</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+}

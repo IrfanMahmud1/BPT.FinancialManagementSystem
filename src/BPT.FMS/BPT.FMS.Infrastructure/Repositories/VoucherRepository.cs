@@ -24,7 +24,7 @@ namespace BPT.FMS.Infrastructure.Repositories
             _context = context;
         }
         public async Task<(List<Voucher> data, int total, int totalDisplay)> GetPagedVouchersAsync(
-            int pageIndex = 1, int pageSize = 10, string order = " asc", string? search = "")
+            int pageIndex = 1, int pageSize = 10, string order = "Type asc", string? search = "")
         {
             int total = await _context.Vouchers.CountAsync();
 
@@ -33,6 +33,7 @@ namespace BPT.FMS.Infrastructure.Repositories
                 IQueryable<Voucher> query = _context.Vouchers
                                                     .AsNoTracking();
 
+                query = query.Where(v => v.Entries.Count > 0);
 
                 if (DateTime.TryParse(search, out var searchDate))
                 {
@@ -66,7 +67,7 @@ namespace BPT.FMS.Infrastructure.Repositories
         public async Task CreateVoucherWithEntriesAsync(Voucher voucher)
         {
             using var conn = new SqlConnection(_connectionString);
-            using var cmd = new SqlCommand("sp_SaveVoucher", conn);
+            using var cmd = new SqlCommand("sp_CreateVoucher", conn);
             cmd.CommandType = CommandType.StoredProcedure;
 
             cmd.Parameters.AddWithValue("@VoucherId", voucher.Id);
@@ -75,20 +76,20 @@ namespace BPT.FMS.Infrastructure.Repositories
             cmd.Parameters.AddWithValue("@Type", voucher.Type);
 
             var entries = new DataTable();
-            entries.Columns.Add("Id", typeof(Guid));
+            entries.Columns.Add("EntryId", typeof(Guid));
             entries.Columns.Add("VoucherId", typeof(Guid));
-            entries.Columns.Add("AccountName", typeof(string));
+            entries.Columns.Add("ChartOfAccountId", typeof(Guid));
             entries.Columns.Add("Debit", typeof(decimal));
             entries.Columns.Add("Credit", typeof(decimal));
 
             foreach (var e in voucher.Entries)
             {
-                entries.Rows.Add(e.Id, voucher.Id, e.AccountName, e.Debit, e.Credit);
+                entries.Rows.Add(e.Id, voucher.Id, e.ChartOfAccountId, e.Debit, e.Credit);
             }
 
             var entriesParam = cmd.Parameters.AddWithValue("@Entries", entries);
             entriesParam.SqlDbType = SqlDbType.Structured;
-            entriesParam.TypeName = "dbo.VoucherEntryTableType"; // Define this TVP in DB
+            entriesParam.TypeName = "dbo.VoucherEntryTableType";
 
             await conn.OpenAsync();
             await cmd.ExecuteNonQueryAsync();
