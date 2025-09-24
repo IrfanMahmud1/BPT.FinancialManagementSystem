@@ -23,6 +23,7 @@ namespace BPT.FMS.Infrastructure.Repositories
             _connectionString = configuration.GetConnectionString("DefaultConnection");
             _context = context;
         }
+
         public async Task<(List<Voucher> data, int total, int totalDisplay)> GetPagedVouchersAsync(
             int pageIndex = 1, int pageSize = 10, string order = "Type asc", string? search = "")
         {

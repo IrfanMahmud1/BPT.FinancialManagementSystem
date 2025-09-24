@@ -1,13 +1,19 @@
 using BPT.FMS.Api.Controllers;
+using BPT.FMS.Applicatiion.Interfaces;
 using BPT.FMS.Application.Features.ChartOfAccount.Commands;
 using BPT.FMS.Domain;
+using BPT.FMS.Domain.Dtos;
 using BPT.FMS.Domain.Repositories;
 using BPT.FMS.Infrastructure;
 using BPT.FMS.Infrastructure.Data;
 using BPT.FMS.Infrastructure.Repositories;
+using BPT.FMS.Infrastructure.Security;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 
 
@@ -26,9 +32,32 @@ builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(typeof(ChartOfAccountAddCommand).Assembly);
 });
 
+var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings?.Issuer,
+            ValidAudience = jwtSettings?.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtSettings?.SecretKey ?? throw new InvalidOperationException()))
+        };
+    });
+
+builder.Services.AddAuthorization();
+
+
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<ChartOfAccountValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<LoginRequest>();
 
+builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IVoucherRepository, VoucherRepository>();
 builder.Services.AddScoped<IChartOfAccountRepository,ChartOfAccountRepository>();
 builder.Services.AddScoped<IApplicationUnitOfWork, ApplicationUnitOfWork>();

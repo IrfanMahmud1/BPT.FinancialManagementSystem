@@ -42,13 +42,12 @@
                             <h3 class="text-danger"></h3>
                         </div>
                         <partial name="_VoucherAddModal" model="new VoucherDto()" />
-                        @* <partial name="_VouchersSearchModal" model="new GetVouchersVM()" /> *@
                         <partial name="_DeleteModalPartial" />
 
                         <table id="vouchersTable" class="display" style="width:100%">
                             <thead>
                                 <tr>
-                                    <th>Type</th>
+                                    <th width="30%">Type</th>
                                     <th>Description</th>
                                     <th>Date</th>
                                     <th>Actions</th>
@@ -57,7 +56,7 @@
                             <tbody>
                             </tbody>
                             <tfoot>
-                                <tr>
+                                <tr width="30%">
                                     <th>Type</th>
                                     <th>Description</th>
                                     <th>Date</th>
@@ -232,11 +231,19 @@
             });
         }
 
+          $('#show-create-voucherModal').click(function () {
+            $('#voucher-addModal-createForm')[0].reset();
+            $('#voucher-addModal-createForm').find('.text-danger').text('');
+            $('#voucher-addModal-createForm').find('.input-validation-error').removeClass('input-validation-error');
+            $('#voucher-addModal-createButton').prop('disabled', false).text('Create');
+            loadChartOfAccountDropdownData('voucher-addModal');
+            $('#voucher-addModal').modal('show');
+        });
+                
         function addEntry() {
             let accountDropdown = $("#voucher-addModal-ddlChartOfAccountId");
             let accountId = accountDropdown.val();
             let accountName = accountDropdown.find("option:selected").text();
-
             let debit = $("#voucher-addModal-nbrDebit").val().trim();
             let credit = $("#voucher-addModal-nbrCredit").val().trim();
 
@@ -246,35 +253,38 @@
                 return;
             }
 
-            // Show table if hidden
             $("#addedVoucherEntriesTable").show();
 
-            // Add row
             let newRow = `
                 <tr>
                     <td data-account-id="${accountId}">${accountName}</td>
                     <td>${debit || 0}</td>
                     <td>${credit || 0}</td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-danger remove-entry">
+                            <i class="bi bi-trash"></i> Remove
+                        </button>
+                    </td>
                 </tr>
             `;
 
             $("#dtVoucherEntriesList tbody").append(newRow);
 
-            // Clear inputs
+            
             accountDropdown.val("");
             $("#voucher-addModal-nbrDebit").val("");
             $("#voucher-addModal-nbrCredit").val("");
         }
 
-        $('#show-create-voucherModal').click(function () {
-            $('#voucher-addModal-createForm')[0].reset();
-            $('#voucher-addModal-createForm').find('.text-danger').text('');
-            $('#voucher-addModal-createForm').find('.input-validation-error').removeClass('input-validation-error');
-            $('#voucher-addModal-createButton').prop('disabled', false).text('Create');
-            loadChartOfAccountDropdownData('voucher-addModal');
-            $('#voucher-addModal').modal('show');
+        
+        $(document).on('click', '.remove-entry', function () {
+            $(this).closest('tr').remove();
+            if ($("#dtVoucherEntriesList tbody tr").length === 0) {
+                $("#addedVoucherEntriesTable").hide();
+            }
         });
 
+        
         $('#voucher-addModal-createForm').submit(function (e) {
             e.preventDefault();
             var form = $(this);
@@ -284,19 +294,15 @@
                 return false;
             }
 
-            form.find('.text-danger').text('');
-            form.find('.input-validation-error').removeClass('input-validation-error');
-            $('#voucher-addModal-createButton').prop('disabled', true).text('Creating...');
-
             let type = $('#voucher-addModal-ddlType').val();
             let referenceNo = $('#voucher-addModal-txtReferenceNo').val();
             let date = $('#voucher-addModal-dteDate').val();
             let entries = [];
 
             $("#dtVoucherEntriesList tbody tr").each(function () {
-                let accountId = $(this).find("input[name='AccountId']").val();
-                let debit = $(this).find("input[name='Debit']").val();
-                let credit = $(this).find("input[name='Credit']").val();
+                let accountId = $(this).find("td").eq(0).data('account-id');
+                let debit = $(this).find("td").eq(1).text();
+                let credit = $(this).find("td").eq(2).text();
 
                 entries.push({
                     ChartOfAccountId: accountId,
@@ -304,6 +310,7 @@
                     Credit: credit
                 });
             });
+
             if (entries.length === 0) {
                 alert("Please add at least one entry before creating the voucher.");
                 $('#voucher-addModal-createButton').prop('disabled', false).text('Create');
@@ -315,13 +322,11 @@
             formData.append("ReferenceNo", referenceNo);
             formData.append("Date", date);
 
-        // append entries in array-style keys
-        entries.forEach((entry, i) => {
-            formData.append(`Entries[${i}].ChartOfAccountId`, entry.AccountId);
-            formData.append(`Entries[${i}].Debit`, entry.Debit);
-            formData.append(`Entries[${i}].Credit`, entry.Credit);
-        });
-
+            entries.forEach((entry, i) => {
+                formData.append(`Entries[${i}].ChartOfAccountId`, entry.ChartOfAccountId);
+                formData.append(`Entries[${i}].Debit`, entry.Debit);
+                formData.append(`Entries[${i}].Credit`, entry.Credit);
+            });
 
             $.ajax({
                 url: '@Url.Action("Create", "VoucherUi")',
@@ -330,20 +335,27 @@
                 processData: false,
                 contentType: false,
                 success: function (response) {
-                    alert("Data saved successfully!");
-                    console.log(response);
+                    $('.text-success').text(response.message);
+                    $('#responseSuccessArea').show();
+                    $('#voucher-addModal').modal('hide');
+                    $('#vouchersTable').DataTable().ajax.reload();
+
+                    setTimeout(function() {
+                        $('#responseSuccessArea').fadeOut();
+                    },3000);
                 },
                 error: function (xhr, status, error) {
-                    alert("Error: " + error);
+                    $('#responseErrorArea .text-danger').text(response.message || 'An error occurred');
+                        $('#responseErrorArea').show();
                     $('#voucher-addModal-createButton').prop('disabled', false).text('Create');
                 }
             });
         });
-        
-         $('#voucher-addModal-createButton').click(function()
-         {
-                $('#voucher-addModal-createForm').submit();
-         });
+
+        $('#voucher-addModal-createButton').click(function() {
+            $('#voucher-addModal-createForm').submit();
+        });
+
     </script>
 
 }

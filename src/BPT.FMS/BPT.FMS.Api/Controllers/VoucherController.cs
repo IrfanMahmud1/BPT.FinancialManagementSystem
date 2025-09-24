@@ -20,7 +20,7 @@ namespace BPT.FMS.Api.Controllers
         {
             _mediator = mediator;
         }
-        [HttpGet("all/{voucherId:guid}")]
+        [HttpGet("paginated/{voucherId:guid}")]
         public async Task<ActionResult> GetAllVoucherEntries([FromQuery] GetAllVoucherEntriesByVoucherIdQuery query)
         {
             try
@@ -117,7 +117,7 @@ namespace BPT.FMS.Api.Controllers
                     ReferenceNo = model.ReferenceNo,
                     Entries = model.Entries.Select(e => new VoucherEntry
                     {
-                        Id = e.Id,
+                        Id = Guid.NewGuid(),
                         ChartOfAccountId = e.ChartOfAccountId,
                         VoucherId = id,
                         Debit = e.Debit,
@@ -152,7 +152,7 @@ namespace BPT.FMS.Api.Controllers
 
                 return NoContent();
             }
-            catch
+            catch(Exception ex)
             {
                 return StatusCode(500, "An error occurred while deleting voucher.");
             }

@@ -18,6 +18,7 @@ namespace BPT.FMS.Application.Features.Voucher.Commands
         public async Task Handle(VoucherDeleteCommand request, CancellationToken cancellationToken)
         {
             await _unitOfWork.VoucherRepository.RemoveAsync(request.Id);
+            await _unitOfWork.SaveAsync();
         }
     }
 }

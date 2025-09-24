@@ -4,6 +4,7 @@ using BPT.FMS.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BPT.FMS.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250924100036_addUserTable")]
+    partial class addUserTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -86,19 +89,6 @@ namespace BPT.FMS.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("8c647159-9a27-43c9-aa21-115e9dddee9e"),
-                            AccessLevel = "Read-Write",
-                            CreatedBy = new Guid("8c647159-9a27-43c9-aa21-115e9dddee9e"),
-                            CreatedDate = new DateTime(2025, 8, 17, 19, 31, 26, 0, DateTimeKind.Utc),
-                            Email = "admin@gmail.com",
-                            IsActive = true,
-                            Password = "admin12345",
-                            UserName = "admin"
-                        });
                 });
 
             modelBuilder.Entity("BPT.FMS.Domain.Entities.Voucher", b =>

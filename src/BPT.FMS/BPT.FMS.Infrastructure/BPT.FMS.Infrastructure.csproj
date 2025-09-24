@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BPT.FMS.Application\BPT.FMS.Application.csproj" />
     <ProjectReference Include="..\BPT.FMS.Domain\BPT.FMS.Domain.csproj" />
   </ItemGroup>
 

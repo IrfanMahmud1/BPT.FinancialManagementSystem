@@ -9,6 +9,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddHttpClient("FmsApi", client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"]);
+    client.Timeout = TimeSpan.FromSeconds(30); // Adjust as needed
 });
 
 builder.Services.AddControllersWithViews();

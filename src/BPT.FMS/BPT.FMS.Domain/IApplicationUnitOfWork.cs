@@ -12,7 +12,7 @@ namespace BPT.FMS.Domain
     {
         public IChartOfAccountRepository ChartOfAccountRepository { get; }
         public IVoucherRepository VoucherRepository { get; }
-
+        public IUserRepository UserRepository { get; }
         public Task<(List<VoucherEntry> data, int total, int totalDisplay)> GetPagedVoucherEntriesAsync(
            Guid voucherId, int pageIndex = 1, int pageSize = 10, string order = "Type asc", string? search = "");
     }
