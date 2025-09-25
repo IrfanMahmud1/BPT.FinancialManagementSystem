@@ -79,8 +79,9 @@ public interface IApplicationUnitOfWork : IUnitOfWork
     IVoucherRepository Vouchers { get; }
     IUserRepository Users { get; }
 }
+```
 
-4. Setup Instructions
+## 4. Setup Instructions
 Prerequisites
 
 Visual Studio 2022 (with .NET Framework 4.8 support)
@@ -95,7 +96,7 @@ cd FinancialManagementSystem
 🔐 Authentication
 
 POST /api/auth/login
-
+```
 Request
 {
   "username": "admin",
@@ -104,11 +105,12 @@ Request
 {
   "token": "<jwt-token>"
 }
+```
 Authorization: Bearer <jwt-token>
 📂 Users
 
 POST /api/User
-
+```
 Example
 {
   "email": "admin@example.com",
@@ -119,6 +121,7 @@ Example
   "createdBy": null,
   "isActive": true
 }
+```
 
 📂 Chart of Accounts (COA)
 
@@ -130,7 +133,7 @@ GET /api/ChartOfAccount/paginated
 
 GET /api/ChartOfAccount/{id}
 → Get a single COA by ID
-
+```
 POST /api/ChartOfAccount
 {
   "accountName": "Cash",
@@ -139,6 +142,7 @@ POST /api/ChartOfAccount
   "isActive": true,
   "createdAt": "2025-09-24T10:30:00Z"
 }
+```
 PUT /api/ChartOfAccount/{id}
 → Update an existing COA
 
@@ -146,18 +150,18 @@ DELETE /api/ChartOfAccount/{id}
 → Delete a COA
 
 🧾 Voucher Entries
-
-GET /api/Voucher/paginated/{journalId}
+```
+GET /api/Voucher/entries/{voucherId}
 → Get all journal entry lines for a specific Journal
 
 GET /api/Voucher/paginated
-→ Get paginated list of Journals
+→ Get paginated list of Vouchers
 
 GET /api/Voucher/{id}
-→ Get a single Journal by ID
-
+→ Get a single Voucher by ID
+```
 POST /api/Voucher
-
+```
 {
   "type": "Payment",
   "date": "2025-09-24",
@@ -175,68 +179,75 @@ POST /api/Voucher
     }
   ]
 }
+```
 DELETE /api/Voucher/{id}
 → Delete a Voucher by ID
 
+```
 6. Pagination Implementation
 
 API supports query parameters:
 /api/ChartOfAccount/paginated?page=1&pageSize=10
 /api/Journal/paginated?page=1&pageSize=10
 /api/Voucher/paginated?page=1&pageSize=10
-
+```
 
 UI uses jQuery DataTable for:
 
-Pagination
+- Pagination
 
-Sorting
+- Sorting
 
-Filtering
+- Filtering
 
 7. Reporting Features
 
-Interactive Reports via jQuery DataTable export (Excel, PDF, CSV, Print)
+- Interactive Reports via jQuery DataTable export (Excel, PDF, CSV, Print)
 
-Advanced Reports (optional): RDLC or Crystal Reports
+- Advanced Reports (optional): RDLC or Crystal Reports
 
-Reports support filtering by:
+- Account type
 
-Date ranges
+- Transaction type
 
-Account type
+## 8. Database Schema
 
-Transaction type
+### 1. ChartOfAccounts
+| Column      | Type              | Notes                                   |
+|------------|-----------------|----------------------------------------|
+| Id         | uniqueidentifier (PK) | Primary Key                             |
+| AccountName| nvarchar         | Name of the account                     |
+| ParentId   | uniqueidentifier (FK) | Self-referencing for parent-child hierarchy |
+| AccountType| nvarchar         | Asset, Liability, Income, etc.         |
+| IsActive   | bit               | Whether the account is active           |
+| CreatedAt  | datetime          | When the account was created            |
 
-8. Database Schema
-1. ChartOfAccounts
-Column	Type	Notes
-Id	uniqueidentifier (PK)	Primary Key
-AccountName	nvarchar	Name of the account
-ParentId	uniqueidentifier (FK)	Self-referencing for parent-child hierarchy
-AccountType	nvarchar	Asset, Liability, Income, etc.
-IsActive	bit	Whether the account is active
-CreatedAt	datetime	When the account was created
-2. Users
-Column	Type	Notes
-Id	uniqueidentifier (PK)	Primary Key
-Email	nvarchar	User’s email
-Password	nvarchar	Plain password (⚠ should be hashed in production)
-UserName	nvarchar	Display/user name
-AccessLevel	nvarchar	Role or permission level
-CreatedDate	datetime	Account creation date
-CreatedBy	uniqueidentifier (FK)	Refers to another User
-IsActive	bit	Whether the user is active
-3. Vouchers
-Column	Type	Notes
-Id	uniqueidentifier (PK)	Primary Key
-Date	datetime	Date of the voucher
-ReferenceNo	nvarchar	Reference number
-Type	nvarchar	Type of voucher (e.g., Payment, Receipt, Journal)
-4. VoucherEntries
-Column	Type	Notes
-Id	uniqueidentifier (PK)	Primary Key
-VoucherId	uniqueidentifier (FK)	References Vouchers.Id
-ChartOfAccountId	uniqueidentifier (FK)	References ChartOfAccounts.Id
-Debit	decimal	Debit amount
-Credit	decimal	Credit amount
+### 2. Users
+| Column     | Type              | Notes                                           |
+|-----------|-----------------|------------------------------------------------|
+| Id        | uniqueidentifier (PK) | Primary Key                                 |
+| Email     | nvarchar         | User’s email                                   |
+| Password  | nvarchar         | Plain password (⚠ should be hashed in production) |
+| UserName  | nvarchar         | Display/user name                              |
+| AccessLevel | nvarchar       | Role or permission level                        |
+| CreatedDate | datetime        | Account creation date                           |
+| CreatedBy | uniqueidentifier (FK) | Refers to another User                       |
+| IsActive  | bit              | Whether the user is active                      |
+
+### 3. Voucher
+| Column       | Type              | Notes                           |
+|-------------|-----------------|--------------------------------|
+| Id          | uniqueidentifier (PK) | Primary Key                 |
+| Date        | datetime          | Date of the voucher            |
+| ReferenceNo | nvarchar          | Reference number               |
+| Type        | nvarchar          | Type of voucher (Payment, Receipt, Journal) |
+
+### 4. VoucherEntries
+| Column          | Type              | Notes                            |
+|----------------|-----------------|---------------------------------|
+| Id             | uniqueidentifier (PK) | Primary Key                  |
+| VoucherId      | uniqueidentifier (FK) | References Journals.Id      |
+| ChartOfAccountId | uniqueidentifier (FK) | References ChartOfAccounts.Id |
+| Debit          | decimal           | Debit amount                    |
+| Credit         | decimal           | Credit amount                   |
+
