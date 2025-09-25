@@ -6,8 +6,10 @@
     <title>@ViewData["Title"] - FMS System</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
     <link href="~/css/site.css" rel="stylesheet" asp-append-version="true" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    @RenderSection("Styles", required: false)
     <style>
         .navbar-custom {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
@@ -39,12 +41,39 @@
             background: #1a1d29;
             border-right: 1px solid #2d3748;
             margin-top: 76px;
+            width: 250px;
+            position: fixed;
+            left: 0;
+            top: 76px;
+            z-index: 1000;
+            overflow-y: auto;
         }
 
         .main-content {
             min-height: calc(100vh - 76px);
             background-color: #f7fafc;
             margin-top: 76px;
+            margin-left: 250px;
+            padding: 20px;
+            width: calc(100% - 250px);
+            box-sizing: border-box;
+        }
+
+        /* Responsive adjustments to prevent overlap on smaller screens */
+        @@media (max-width: 991.98px) {
+            .sidebar {
+                position: static !important;
+                width: 100% !important;
+                min-height: auto;
+                margin-top: 0;
+                top: auto;
+                left: auto;
+            }
+            .main-content {
+                margin-left: 0 !important;
+                width: 100% !important;
+                padding: 15px;
+            }
         }
 
         .sidebar .nav-link {
@@ -111,34 +140,11 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
+                @{ var adminEmail = Context?.Session?.GetString("AdminEmail") ?? "Guest"; var adminName = Context?.Session?.GetString("AdminName") ?? "User"; }
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="/Dashboard">
                             <i class="bi bi-speedometer2 me-1"></i>Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-gear me-1"></i>Master Data
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="/DocumentTypes">Document Types</a></li>
-                            <li><a class="dropdown-item" href="/WorkflowTypes">Workflow Types</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/Workflows">
-                            <i class="bi bi-diagram-3 me-1"></i>Workflows
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/DocumentTypes">
-                            <i class="bi bi-file-earmark me-1"></i>Documents
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/Users">
-                            <i class="bi bi-people me-1"></i>Admins
                         </a>
                     </li>
                 </ul>
@@ -146,11 +152,11 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-person-circle me-1"></i>
-                            Admin User
+                            @adminEmail
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><h6 class="dropdown-header">admin@example.com</h6></li>
-                            <li><span class="dropdown-item-text">Access: Administrator</span></li>
+                            <li><h6 class="dropdown-header">@adminEmail</h6></li>
+                            <li><span class="dropdown-item-text">@("User: " + adminName)</span></li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <a class="dropdown-item text-dark" asp-controller="AuthUi" asp-action="Logout">
@@ -167,7 +173,7 @@
     <div class="container-fluid p-0">
         <div class="row">
             <!-- Left Sidebar -->
-            <div class="col-lg-3 col-md-4 sidebar p-0 position-fixed" style="z-index: 1000;">
+            <div class="sidebar p-0">
                 <div class="p-4">
                     <h5 class="mb-4 text-center text-light">Navigation</h5>
                     <nav class="nav flex-column">
@@ -177,6 +183,9 @@
                         <a asp-controller="VoucherUi" asp-action="Index" class="nav-link">
                             <i class="me-2">📦</i> Vouchers
                         </a>
+                        <a asp-controller="JournalUi" asp-action="Index" class="nav-link">
+                            <i class="me-2">📘</i> Journals
+                        </a>
                         <a asp-controller="ChartOfAccountUi" asp-action="Index" class="nav-link">
                             <i class="me-2">🛒</i> ChartOfAccounts
                         </a>
@@ -184,13 +193,15 @@
                 </div>
             </div>
 
-            <main class="col-lg-9 col-md-8 main-content p-4" style="margin-left: 250px;">
+            <main class="main-content">
                 @RenderBody()
             </main>
         </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)

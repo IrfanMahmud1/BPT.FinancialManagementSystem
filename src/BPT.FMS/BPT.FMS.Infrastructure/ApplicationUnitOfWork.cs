@@ -17,19 +17,21 @@ namespace BPT.FMS.Infrastructure
     {
         public IChartOfAccountRepository ChartOfAccountRepository { get; private set; }
         public IVoucherRepository VoucherRepository { get; private set; }
+        public IJournalRepository JournalRepository { get; private set; }
         public IUserRepository UserRepository { get; private set; }
 
         private readonly ApplicationDbContext _context;
         public ApplicationUnitOfWork(ApplicationDbContext applicationDbContext,
             IChartOfAccountRepository chartOfAccountRepository,
             IVoucherRepository voucherRepository,
-            IUserRepository userRepository,
-            ApplicationDbContext context) : base(applicationDbContext)
+            IJournalRepository journalRepository,
+            IUserRepository userRepository) : base(applicationDbContext)
         {
             ChartOfAccountRepository = chartOfAccountRepository;
             VoucherRepository = voucherRepository;
+            JournalRepository = journalRepository;
             UserRepository = userRepository;
-            _context = context;
+            _context = applicationDbContext;
         }
 
         public async Task<List<VoucherEntryDto>> GetVoucherEntriesByVoucherIdAsync(Guid voucherId)
@@ -59,6 +61,76 @@ namespace BPT.FMS.Infrastructure
                                         }
                                  })
                                  .ToListAsync();
+        }
+        public async Task<List<JournalEntryDto>> GetJournalEntriesByJournalIdAsync(Guid journalId)
+        {
+            return await _context.JournalEntries
+                                 .AsNoTracking()
+                                 .AsSplitQuery()
+                                 .Where(je => je.JournalId == journalId)
+                                 .Select(je => new JournalEntryDto
+                                 {
+                                     Id = je.Id,
+                                     ChartOfAccountId = je.ChartOfAccountId,
+                                     Debit = je.Debit,
+                                     Credit = je.Credit,
+                                     JournalId = je.JournalId,
+                                     Journal = je.Journal == null ? null : new JournalDto
+                                     {
+                                         Id = je.Journal.Id,
+                                         Type = je.Journal.Type,
+                                         Date = je.Journal.Date,
+                                         ReferenceNo = je.Journal.ReferenceNo
+                                     },
+                                     ChartOfAccount = je.ChartOfAccount == null ? null : new ChartOfAccountDto
+                                     {
+                                         Id = je.ChartOfAccount.Id,
+                                         AccountName = je.ChartOfAccount.AccountName,
+                                     }
+                                 })
+                                 .ToListAsync();
+        }
+        public async Task<(List<JournalEntry> data, int total, int totalDisplay)> GetPagedJournalEntriesAsync(
+           Guid journalId, int pageIndex = 1, int pageSize = 10, string order = "Debit asc", string? search = "")
+        {
+            int total = await _context.JournalEntries.CountAsync();
+
+            try
+            {
+                IQueryable<JournalEntry> query = _context.JournalEntries
+                                                    .AsNoTracking()
+                                                    .AsSplitQuery()
+                                                    .Include(j => j.Journal)
+                                                    .Include(j => j.ChartOfAccount);
+
+                query = query.Where(j => j.JournalId == journalId);
+
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    query = query.Where(c =>
+                        c.Credit.ToString().Contains(search) ||
+                        c.Debit.ToString().Contains(search) ||
+                        c.ChartOfAccount.AccountName.Contains(search) ||
+                        c.Journal.Type.Contains(search)
+                    );
+                }
+
+
+                int totalDisplay = await query.CountAsync();
+
+                query = query.OrderBy(order ?? "Debit asc");
+                var result = await query
+                    .Skip((pageIndex - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+
+                return (result, total, totalDisplay);
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("An error occurred while retrieving journal entries ");
+                throw;
+            }
         }
         public async Task<(List<VoucherEntry> data, int total, int totalDisplay)> GetPagedVoucherEntriesAsync(
            Guid voucherId, int pageIndex = 1, int pageSize = 10, string order = "Debit asc", string? search = "")

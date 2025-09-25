@@ -4,6 +4,7 @@ using BPT.FMS.Application.Features.Voucher.Queries;
 using BPT.FMS.Domain.Dtos;
 using BPT.FMS.Domain.Entities;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Web;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -12,6 +13,7 @@ namespace BPT.FMS.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class VoucherController : ControllerBase
     {
         private readonly IMediator _mediator;

@@ -1,9 +1,9 @@
-﻿@using BPT.FMS.Domain.Dtos
+@using BPT.FMS.Domain.Dtos
 @using BPT.FMS.Domain.Entities
-@model GetVouchersDto
+@model GetJournalsDto
 @{
     Layout = "_DashboardLayout";
-    ViewData["Title"] = "Vouchers";
+    ViewData["Title"] = "Journals";
 }
 @section Styles {
     <link href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css" rel="stylesheet" />
@@ -26,10 +26,10 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="d-flex justify-content-between">
-                            <div class=""><h3 class="card-title">Available Vouchers</h3></div>
+                            <div class=""><h3 class="card-title">Available Journals</h3></div>
                             <div class="">
-                                <button type="button" class="btn btn-success me-3" id="show-create-voucherModal">
-                                    <i class="bi bi-plus-lg"></i> Add Voucher
+                                <button type="button" class="btn btn-success me-3" id="show-create-journalModal">
+                                    <i class="bi bi-plus-lg"></i> Add Journal
                                 </button>
                             </div>
                         </div>
@@ -42,14 +42,14 @@
                         <div class="rounded-2 alert alert-danger alert-dismissible" id="responseErrorArea" style="height:60px;display:none">
                             <h3 class="text-danger"></h3>
                         </div>
-                        <partial name="_VoucherAddModal" model="new VoucherDto()" />
+                        <partial name="_JournalAddModal" model="new JournalDto()" />
                         <partial name="_DeleteModalPartial" />
 
-                        <table id="vouchersTable" class="display" style="width:100%">
+                        <table id="journalsTable" class="display" style="width:100%">
                             <thead>
                                 <tr>
                                     <th width="30%">Type</th>
-                                    <th>Description</th>
+                                    <th>Reference No</th>
                                     <th>Date</th>
                                     <th>Actions</th>
                                 </tr>
@@ -59,7 +59,7 @@
                             <tfoot>
                                 <tr width="30%">
                                     <th>Type</th>
-                                    <th>Description</th>
+                                    <th>Reference No</th>
                                     <th>Date</th>
                                     <th>Actions</th>
                                 </tr>
@@ -90,8 +90,8 @@
     <script src="https://cdn.datatables.net/buttons/3.0.1/js/buttons.print.min.js"></script>
     <script>
         let entries = [];
-        function Vouchers(){
-            $("#vouchersTable").DataTable({
+        function Journals(){
+            $("#journalsTable").DataTable({
                 processing: true,
                 serverSide: true,
                 responsive: true,
@@ -110,7 +110,7 @@
                     'copy', 'csv', 'excel', 'pdf', 'print'
                 ],
                 ajax:{
-                    url: "/VoucherUi/GetVouchersJsonData",
+                    url: "/JournalUi/GetJournalsJsonData",
                     type: "POST",
                     contentType: "application/json", //must be added
                     dataType: "json", //better to add, not mandatory
@@ -128,7 +128,7 @@
                             render: function (data, type, row) {
                                 return `
                                      <div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-sm btn-secondary show-entries-voucherModal"
+                                        <button type="button" class="btn btn-sm btn-secondary show-entries-journalModal"
                                             data-id="${data}">
                                             <i class="bi bi-pencil-square"></i> Entries
                                         </button>
@@ -146,19 +146,19 @@
               });
         }
         $(function() {
-            Vouchers();
+            Journals();
         });
 
-            $('#vouchersTable').on('click', '.show-entries-voucherModal', function () {
+            $('#journalsTable').on('click', '.show-entries-journalModal', function () {
                 let id = $(this).data("id");
-                window.location.href = '/VoucherUi/VoucherEntries/' + id;
+                window.location.href = '/JournalUi/JournalEntries/' + id;
             });
-            $('#vouchersTable').on('click', '.show-bs-modal', function () {
+            $('#journalsTable').on('click', '.show-bs-modal', function () {
                 let id = $(this).data("id");
                 let deleteModal = $("#modal-delete");
-                deleteModal.find('.modal-body p').text('Are you sure you want to delete this voucher?');
+                deleteModal.find('.modal-body p').text('Are you sure you want to delete this journal?');
                 $('#delete-id').val(id);
-                $('#delete-form').attr('action', '/voucherui/delete');
+                $('#delete-form').attr('action', '/journalui/delete');
                 deleteModal.modal('show');
             });
 
@@ -176,7 +176,7 @@
                          $('#responseSuccessArea').show();
 
                          $('#modal-delete').modal('hide');
-                         $('#vouchersTable').DataTable().ajax.reload();
+                         $('#journalsTable').DataTable().ajax.reload();
                          setTimeout(function() {
                                 $('#responseSuccessArea').fadeOut();
                             },3000);
@@ -232,21 +232,21 @@
             });
         }
 
-          $('#show-create-voucherModal').click(function () {
-            $('#voucher-addModal-createForm')[0].reset();
-            $('#voucher-addModal-createForm').find('.text-danger').text('');
-            $('#voucher-addModal-createForm').find('.input-validation-error').removeClass('input-validation-error');
-            $('#voucher-addModal-createButton').prop('disabled', false).text('Create');
-            loadChartOfAccountDropdownData('voucher-addModal');
-            $('#voucher-addModal').modal('show');
+          $('#show-create-journalModal').click(function () {
+            $('#journal-addModal-createForm')[0].reset();
+            $('#journal-addModal-createForm').find('.text-danger').text('');
+            $('#journal-addModal-createForm').find('.input-validation-error').removeClass('input-validation-error');
+            $('#journal-addModal-createButton').prop('disabled', false).text('Create');
+            loadChartOfAccountDropdownData('journal-addModal');
+            $('#journal-addModal').modal('show');
         });
                 
         function addEntry() {
-            let accountDropdown = $("#voucher-addModal-ddlChartOfAccountId");
+            let accountDropdown = $("#journal-addModal-ddlChartOfAccountId");
             let accountId = accountDropdown.val();
             let accountName = accountDropdown.find("option:selected").text();
-            let debit = $("#voucher-addModal-nbrDebit").val().trim();
-            let credit = $("#voucher-addModal-nbrCredit").val().trim();
+            let debit = $("#journal-addModal-nbrDebit").val().trim();
+            let credit = $("#journal-addModal-nbrCredit").val().trim();
 
             // Validation
             if (!accountId || (!debit && !credit)) {
@@ -254,7 +254,7 @@
                 return;
             }
 
-            $("#addedVoucherEntriesTable").show();
+            $("#addedJournalEntriesTable").show();
 
             let newRow = `
                 <tr>
@@ -269,38 +269,38 @@
                 </tr>
             `;
 
-            $("#dtVoucherEntriesList tbody").append(newRow);
+            $("#dtJournalEntriesList tbody").append(newRow);
 
             
             accountDropdown.val("");
-            $("#voucher-addModal-nbrDebit").val("");
-            $("#voucher-addModal-nbrCredit").val("");
+            $("#journal-addModal-nbrDebit").val("");
+            $("#journal-addModal-nbrCredit").val("");
         }
 
         
         $(document).on('click', '.remove-entry', function () {
             $(this).closest('tr').remove();
-            if ($("#dtVoucherEntriesList tbody tr").length === 0) {
-                $("#addedVoucherEntriesTable").hide();
+            if ($("#dtJournalEntriesList tbody tr").length === 0) {
+                $("#addedJournalEntriesTable").hide();
             }
         });
 
         
-        $('#voucher-addModal-createForm').submit(function (e) {
+        $('#journal-addModal-createForm').submit(function (e) {
             e.preventDefault();
             var form = $(this);
 
             if (!form.valid()) {
-                $('#voucher-addModal-createButton').prop('disabled', false).text('Create');
+                $('#journal-addModal-createButton').prop('disabled', false).text('Create');
                 return false;
             }
 
-            let type = $('#voucher-addModal-ddlType').val();
-            let referenceNo = $('#voucher-addModal-txtReferenceNo').val();
-            let date = $('#voucher-addModal-dteDate').val();
+            let type = $('#journal-addModal-ddlType').val();
+            let referenceNo = $('#journal-addModal-txtReferenceNo').val();
+            let date = $('#journal-addModal-dteDate').val();
             let entries = [];
 
-            $("#dtVoucherEntriesList tbody tr").each(function () {
+            $("#dtJournalEntriesList tbody tr").each(function () {
                 let accountId = $(this).find("td").eq(0).data('account-id');
                 let debit = $(this).find("td").eq(1).text();
                 let credit = $(this).find("td").eq(2).text();
@@ -313,8 +313,8 @@
             });
 
             if (entries.length === 0) {
-                alert("Please add at least one entry before creating the voucher.");
-                $('#voucher-addModal-createButton').prop('disabled', false).text('Create');
+                alert("Please add at least one entry before creating the journal.");
+                $('#journal-addModal-createButton').prop('disabled', false).text('Create');
                 return;
             }
 
@@ -330,7 +330,7 @@
             });
 
             $.ajax({
-                url: '@Url.Action("Create", "VoucherUi")',
+                url: '@Url.Action("Create", "JournalUi")',
                 type: 'POST',
                 data: formData,
                 processData: false,
@@ -338,8 +338,8 @@
                 success: function (response) {
                     $('.text-success').text(response.message);
                     $('#responseSuccessArea').show();
-                    $('#voucher-addModal').modal('hide');
-                    $('#vouchersTable').DataTable().ajax.reload();
+                    $('#journal-addModal').modal('hide');
+                    $('#journalsTable').DataTable().ajax.reload();
 
                     setTimeout(function() {
                         $('#responseSuccessArea').fadeOut();
@@ -348,13 +348,13 @@
                 error: function (xhr, status, error) {
                     $('#responseErrorArea .text-danger').text(response.message || 'An error occurred');
                         $('#responseErrorArea').show();
-                    $('#voucher-addModal-createButton').prop('disabled', false).text('Create');
+                    $('#journal-addModal-createButton').prop('disabled', false).text('Create');
                 }
             });
         });
 
-        $('#voucher-addModal-createButton').click(function() {
-            $('#voucher-addModal-createForm').submit();
+        $('#journal-addModal-createButton').click(function() {
+            $('#journal-addModal-createForm').submit();
         });
 
     </script>

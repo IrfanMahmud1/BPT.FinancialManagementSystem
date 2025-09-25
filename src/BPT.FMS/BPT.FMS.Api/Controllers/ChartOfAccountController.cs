@@ -4,6 +4,7 @@ using BPT.FMS.Application.Features.ChartOfAccount.Queries;
 using BPT.FMS.Domain.Dtos;
 using BPT.FMS.Domain.Entities;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Web;
 
@@ -11,6 +12,7 @@ namespace BPT.FMS.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ChartOfAccountController : ControllerBase
     {
         private readonly IMediator _mediator;

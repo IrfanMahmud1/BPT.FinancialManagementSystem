@@ -1,0 +1,61 @@
+@using BPT.FMS.Domain.Dtos
+@model IEnumerable<JournalEntryDto>
+@{
+    ViewData["Title"] = "JournalEntries";
+}
+
+
+
+<div class="app-content">
+    <!--begin::Container-->
+    <div class="container-fluid">
+        <!--begin::Row-->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between">
+                            <div class=""><h3 class="card-title">Available Journal Entries</h3></div>
+                        </div>
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                        <table id="journalEntriesTable" class="display table table-striped-columns" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>JournalType</th>
+                                    <th>Account</th>
+                                    <th>Debit</th>
+                                    <th>Credit</th>
+                                </tr>
+                            </thead>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>@item.Journal.Type</td>
+                                        <td>@item.ChartOfAccount.AccountName</td>
+                                        <td>@item.Debit</td>
+                                        <td>@item.Credit</td>
+                                    </tr>
+                                }
+                            <tbody>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th>JournalType</th>
+                                    <th>Account</th>
+                                    <th>Debit</th>
+                                    <th>Credit</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <!-- /.card -->
+            </div>
+        </div>
+        <!--end::Row-->
+    </div>
+    <!--end::Container-->
+</div>
+

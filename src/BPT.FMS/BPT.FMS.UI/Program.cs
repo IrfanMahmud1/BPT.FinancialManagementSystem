@@ -1,6 +1,7 @@
 using BPT.FMS.Infrastructure.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using BPT.FMS.UI.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,11 +12,14 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.Configure<JwtSettings>(
     builder.Configuration.GetSection("JwtSettings"));
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<JwtDelegatingHandler>();
+
 builder.Services.AddHttpClient("FmsApi", client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"]);
-    client.Timeout = TimeSpan.FromSeconds(30); // Adjust as needed
-});
+    client.Timeout = TimeSpan.FromSeconds(50); // Adjust as needed
+}).AddHttpMessageHandler<JwtDelegatingHandler>();
 
 builder.Services.AddSession(options =>
 {

@@ -8,6 +8,8 @@ namespace BPT.FMS.Infrastructure.Data
         public DbSet<ChartOfAccount> ChartOfAccounts { get; set; }
         public DbSet<Voucher> Vouchers { get; set; }
         public DbSet<VoucherEntry> VoucherEntries { get; set; }
+        public DbSet<Journal> Journals { get; set; }
+        public DbSet<JournalEntry> JournalEntries { get; set; }
 
         public DbSet<User> Users { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
@@ -46,6 +48,24 @@ namespace BPT.FMS.Infrastructure.Data
                 entity.HasOne(e => e.Voucher)
                                 .WithMany(v => v.Entries)
                                 .HasForeignKey(e => e.VoucherId)
+                                .OnDelete(DeleteBehavior.Cascade);
+            });
+            modelBuilder.Entity<Journal>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Date).IsRequired();
+                entity.Property(e => e.ReferenceNo).IsRequired();
+                entity.Property(e => e.Type).IsRequired();
+            });
+            modelBuilder.Entity<JournalEntry>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.ChartOfAccountId).IsRequired();
+                entity.Property(e => e.Debit).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.Credit).HasColumnType("decimal(18,2)");
+                entity.HasOne(e => e.Journal)
+                                .WithMany()
+                                .HasForeignKey(e => e.JournalId)
                                 .OnDelete(DeleteBehavior.Cascade);
             });
             modelBuilder.Entity<User>()

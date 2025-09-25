@@ -62,6 +62,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<LoginRequest>();
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IVoucherRepository, VoucherRepository>();
+builder.Services.AddScoped<IJournalRepository, JournalRepository>();
 builder.Services.AddScoped<IChartOfAccountRepository,ChartOfAccountRepository>();
 builder.Services.AddScoped<IApplicationUnitOfWork, ApplicationUnitOfWork>();
 builder.Services.AddControllers();

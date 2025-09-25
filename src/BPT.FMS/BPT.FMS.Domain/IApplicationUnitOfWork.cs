@@ -17,5 +17,10 @@ namespace BPT.FMS.Domain
         public IUserRepository UserRepository { get; }
         public Task<(List<VoucherEntry> data, int total, int totalDisplay)> GetPagedVoucherEntriesAsync(
            Guid voucherId, int pageIndex = 1, int pageSize = 10, string order = "Type asc", string? search = "");
+
+        public IJournalRepository JournalRepository { get; }
+        public Task<List<JournalEntryDto>> GetJournalEntriesByJournalIdAsync(Guid journalId);
+        public Task<(List<JournalEntry> data, int total, int totalDisplay)> GetPagedJournalEntriesAsync(
+            Guid journalId, int pageIndex = 1, int pageSize = 10, string order = "Debit asc", string? search = "");
     }
 }

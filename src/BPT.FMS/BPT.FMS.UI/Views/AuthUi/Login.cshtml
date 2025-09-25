@@ -10,17 +10,23 @@
     <div class="login-card">
         <h2 class="text-center mb-4">Admin Login</h2>
 
+        @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
+        {
+            <div class="alert alert-danger text-center mb-3">
+                Login attempt failed
+            </div>
+        }
 
         <form asp-antiforgery="true" method="post">
             <div class="mb-3">
                 <label asp-for="Email" class="form-label">Email</label>
-                <input asp-for="Email" class="form-control" />
+                <input asp-for="Email" class="form-control" value="admin@gmail.com" />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
 
             <div class="mb-3">
                 <label asp-for="Password" class="form-label">Password</label>
-                <input asp-for="Password" type="password" class="form-control" />
+                <input asp-for="Password" type="password" class="form-control" value="admin12345" />
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
 

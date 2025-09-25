@@ -1,4 +1,4 @@
-﻿using BPT.FMS.Application.Features.ChartOfAccount.Queries;
+using BPT.FMS.Application.Features.ChartOfAccount.Queries;
 using BPT.FMS.Domain;
 using BPT.FMS.Domain.Dtos;
 using BPT.FMS.Domain.Features.ChartOfAccount.Queries;
@@ -16,12 +16,12 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BPT.FMS.UI.Controllers
 {
-    public class VoucherUiController : Controller
+    public class JournalUiController : Controller
     {
         private readonly HttpClient _httpClient;
         private readonly JsonSerializerOptions _jsonOptions;
 
-        public VoucherUiController(IHttpClientFactory httpClientFactory)
+        public JournalUiController(IHttpClientFactory httpClientFactory)
         {
             _httpClient = httpClientFactory.CreateClient("FmsApi");
             _jsonOptions = new JsonSerializerOptions
@@ -36,27 +36,27 @@ namespace BPT.FMS.UI.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> VoucherEntries(Guid id)
+        public async Task<IActionResult> JournalEntries(Guid id)
         {
             try
             {
-                var url = $"api/Voucher/entries?voucherId={id}";
+                var url = $"api/Journal/entries?journalId={id}";
 
                 var response = await _httpClient.GetAsync(url);
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    return Json(new List<VoucherEntryDto>());
+                    return Json(new List<JournalEntryDto>());
                 }
 
                 var stream = await response.Content.ReadAsStreamAsync();
-                var result = await JsonSerializer.DeserializeAsync<IEnumerable<VoucherEntryDto>>(stream, _jsonOptions);
+                var result = await JsonSerializer.DeserializeAsync<IEnumerable<JournalEntryDto>>(stream, _jsonOptions);
 
-                return View(result ?? new List<VoucherEntryDto>());
+                return View(result ?? new List<JournalEntryDto>());
             }
             catch
             {
-                return View(new List<VoucherEntryDto>());
+                return View(new List<JournalEntryDto>());
             }
         }
 
@@ -66,17 +66,24 @@ namespace BPT.FMS.UI.Controllers
         {
             try
             {
+                // Debug logging
+                Console.WriteLine($"UI: Received form data with {form.Count} keys");
+                foreach (var key in form.Keys)
+                {
+                    Console.WriteLine($"UI: Form key: {key} = {form[key]}");
+                }
+                
                 var type = form["Type"].ToString();
                 var referenceNo = form["ReferenceNo"].ToString();
                 var date = form["Date"].ToString();
                 
-                var entries = new List<VoucherEntryDto>();
+                var entries = new List<JournalEntryDto>();
                 
                 // Parse entries from form data
                 var entryCount = 0;
                 while (form.ContainsKey($"Entries[{entryCount}].ChartOfAccountId"))
                 {
-                    var entry = new VoucherEntryDto
+                    var entry = new JournalEntryDto
                     {
                         ChartOfAccountId = Guid.Parse(form[$"Entries[{entryCount}].ChartOfAccountId"].ToString()),
                         Debit = decimal.Parse(form[$"Entries[{entryCount}].Debit"].ToString()),
@@ -86,7 +93,7 @@ namespace BPT.FMS.UI.Controllers
                     entryCount++;
                 }
 
-                var model = new VoucherDto
+                var model = new JournalDto
                 {
                     Type = type,
                     ReferenceNo = referenceNo,
@@ -94,16 +101,21 @@ namespace BPT.FMS.UI.Controllers
                     Entries = entries
                 };
 
-                var content = new StringContent(JsonSerializer.Serialize(model), Encoding.UTF8, "application/json");
-                var response = await _httpClient.PostAsync("api/Voucher", content);
+                var jsonContent = JsonSerializer.Serialize(model);
+                Console.WriteLine($"UI: Sending to API: {jsonContent}");
+                
+                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+                var response = await _httpClient.PostAsync("api/Journal", content);
+                
+                Console.WriteLine($"UI: API Response Status: {response.StatusCode}");
 
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
-                    return Json(new { success = false, message = $"Failed to create voucher: {errorContent}" });
+                    return Json(new { success = false, message = $"Failed to create journal: {errorContent}" });
                 }
                 
-                return Json(new { success = true, message = "Voucher created successfully" });
+                return Json(new { success = true, message = "Journal created successfully" });
             }
             catch (Exception ex)
             {
@@ -111,43 +123,28 @@ namespace BPT.FMS.UI.Controllers
             }
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CreateAsync(VoucherDto model)
-        {
-            var content = new StringContent(JsonSerializer.Serialize(model), Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync("api/Voucher", content);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                TempData["ErrorMessage"] = "Failed to create voucher";
-                return Json(new { success = false, message = "Failed to create voucher" });
-            }
-            TempData["SuccessMessage"] = "Voucher created successfully";
-            return Json(new { success = true, message = "Voucher created successfully" });
-        }
-
 
         [HttpPost]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var response = await _httpClient.DeleteAsync($"api/Voucher/{id}");
+            var response = await _httpClient.DeleteAsync($"api/Journal/{id}");
             if (!response.IsSuccessStatusCode)
             {
-                TempData["ErrorMessage"] = "Failed to delete voucher";
-                return Json(new { success = false, message = "Failed to delete voucher" });
+                TempData["ErrorMessage"] = "Failed to delete journal";
+                return Json(new { success = false, message = "Failed to delete journal" });
             }
          
-            TempData["SuccessMessage"] = "Voucher deleted successfully";
-            return Json(new { success = true, message = "Voucher deleted successfully" });
+            TempData["SuccessMessage"] = "Journal deleted successfully";
+            return Json(new { success = true, message = "Journal deleted successfully" });
         }
 
         [HttpPost]
-        public async Task<JsonResult> GetVouchersJsonDataAsync([FromBody] GetVouchersDto query)
+        public async Task<JsonResult> GetJournalsJsonDataAsync([FromBody] GetJournalsDto query)
         {
             try
             {
-                var url = $"api/Voucher/paginated?pageIndex={query.PageIndex}&pageSize={query.PageSize}" +
-                 $"&sortColumn={Uri.EscapeDataString(query.FormatSortExpression("Type", "Description", "Date"))}&search={Uri.EscapeDataString(query.Search.Value)}";
+                var url = $"api/Journal/paginated?pageIndex={query.PageIndex}&pageSize={query.PageSize}" +
+                 $"&sortColumn={Uri.EscapeDataString(query.FormatSortExpression("Type", "ReferenceNo", "Date"))}&search={Uri.EscapeDataString(query.Search.Value)}";
 
                 var response = await _httpClient.GetAsync(url);
 
@@ -168,5 +165,4 @@ namespace BPT.FMS.UI.Controllers
         }
     }
 }
-
 

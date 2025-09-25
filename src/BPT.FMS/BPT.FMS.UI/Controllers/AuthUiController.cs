@@ -31,6 +31,8 @@ namespace BPT.FMS.UI.Controllers
                 Response.Redirect("/Dashboard");
             }
 
+            // Clear any previous model state errors on fresh page load
+            ModelState.Clear();
             return View();
         }
 
@@ -70,7 +72,11 @@ namespace BPT.FMS.UI.Controllers
                     TempData["SuccessMessage"] = "Login successful!";
                     return RedirectToAction("Index", "DashboardUi");
                 }
-                return View(model);
+                else
+                {
+                    ModelState.AddModelError("", "Login attempt failed");
+                    return View(model);
+                }
             }
             catch (HttpRequestException ex)
             {
