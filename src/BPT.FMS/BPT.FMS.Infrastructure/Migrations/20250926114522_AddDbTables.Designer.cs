@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BPT.FMS.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250925003303_AddCreateJournalStoredProcedure")]
-    partial class AddCreateJournalStoredProcedure
+    [Migration("20250926114522_AddDbTables")]
+    partial class AddDbTables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

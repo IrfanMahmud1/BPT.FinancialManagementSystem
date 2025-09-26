@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BPT.FMS.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250925000427_JournalTableType")]
-    partial class JournalTableType
+    [Migration("20250926115137_AddVoucherTableType")]
+    partial class AddVoucherTableType
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

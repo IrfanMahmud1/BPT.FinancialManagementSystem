@@ -5,25 +5,20 @@
 namespace BPT.FMS.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class JournalTableType : Migration
+    public partial class AddVoucherTableType : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             var sql = """"
-                                USE [BPT.FMS]
-                GO
-
-                /****** Object:  UserDefinedTableType [dbo].[JournalEntryTableType]    Script Date: 9/25/2025 6:01:39 AM ******/
-                CREATE TYPE [dbo].[JournalEntryTableType] AS TABLE(
+                                CREATE TYPE [dbo].[VoucherEntryTableType] AS TABLE(
                 	[EntryId] [uniqueidentifier] NULL,
-                	[JournalId] [uniqueidentifier] NULL,
+                	[VoucherId] [uniqueidentifier] NULL,
                 	[ChartOfAccountId] [uniqueidentifier] NULL,
                 	[Debit] [decimal](18, 2) NULL,
                 	[Credit] [decimal](18, 2) NULL
                 )
                 GO
-                
                 """";
             migrationBuilder.Sql(sql);
         }
@@ -31,12 +26,7 @@ namespace BPT.FMS.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            var sql = """"
-                                USE [BPT.FMS]
-                GO
-                DROP TYPE [dbo].[JournalEntryTableType]
-                GO
-                """";
+            var sql = "DROP TYPE [dbo].[VoucherEntryTableType]";
             migrationBuilder.Sql(sql);
         }
     }

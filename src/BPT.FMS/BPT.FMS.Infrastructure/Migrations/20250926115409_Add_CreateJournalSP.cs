@@ -5,20 +5,13 @@
 namespace BPT.FMS.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class AddCreateJournalStoredProcedure : Migration
+    public partial class Add_CreateJournalSP : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            var sql = """
-                                USE [BPT.FMS]
-                GO
-                /****** Object:  StoredProcedure [dbo].[CreateJournal]    Script Date: 9/25/2025 12:11:15 AM ******/
-                SET ANSI_NULLS ON
-                GO
-                SET QUOTED_IDENTIFIER ON
-                GO
-                CREATE OR ALTER PROCEDURE [dbo].[sp_CreateJournal]
+            var sql = """"
+                                CREATE OR ALTER     PROCEDURE [dbo].[sp_CreateJournal]
                     @JournalId UNIQUEIDENTIFIER,
                     @Date DATETIME,
                     @ReferenceNo NVARCHAR(50),
@@ -34,21 +27,14 @@ namespace BPT.FMS.Infrastructure.Migrations
                     SELECT EntryId, @JournalId, ChartOfAccountId, Debit, Credit
                     FROM @Entries;
                 END
-                GO
-                
-                """;
+                """";
             migrationBuilder.Sql(sql);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            var sql = """
-                                USE [BPT.FMS]
-                GO
-                DROP PROCEDURE [dbo].[CreateJournal]
-                GO
-                """;
+            var sql = "DROP PROCEDURE [dbo].[sp_CreateJournal]";
             migrationBuilder.Sql(sql);
         }
     }

@@ -5,20 +5,13 @@
 namespace BPT.FMS.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class storedprocedure : Migration
+    public partial class Add_CreateVoucherSP : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             var sql = """"
-                                USE [BPT.FMS]
-                GO
-                /****** Object:  StoredProcedure [dbo].[sp_CreateVoucher]    Script Date: 9/24/2025 5:39:56 PM ******/
-                SET ANSI_NULLS ON
-                GO
-                SET QUOTED_IDENTIFIER ON
-                GO
-                	CREATE OR ALTER PROCEDURE [dbo].[sp_CreateVoucher]
+                                CREATE OR ALTER     PROCEDURE [dbo].[sp_CreateVoucher]
                     @VoucherId UNIQUEIDENTIFIER,
                     @Date DATE,
                     @ReferenceNo NVARCHAR(50),
@@ -45,7 +38,6 @@ namespace BPT.FMS.Infrastructure.Migrations
                         THROW;
                     END CATCH
                 END
-
                 
                 """";
             migrationBuilder.Sql(sql);
